@@ -106,6 +106,15 @@ export interface TypeMatchResult {
   total_options: number;
 }
 
+export interface BrandProductsResult {
+  brand: string;
+  reference_product: SpecialStorePrice;
+  brand_products: SpecialStorePrice[];
+  cheapest_price: string | null;
+  total_products: number;
+  stores_with_brand: string[];
+}
+
 // Fresh Foods types
 export interface FreshFoodStorePrice {
   store_id: number;

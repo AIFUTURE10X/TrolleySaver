@@ -16,6 +16,7 @@ from app.schemas.price import (
     SpecialStorePrice,
     BrandMatchResult,
     TypeMatchResult,
+    BrandProductsResult,
     FreshFoodItem,
     FreshFoodStorePrice,
     FreshFoodsResponse,
@@ -609,6 +610,119 @@ def compare_specials_type_match(
         cheapest_option=f"Special #{cheapest.special_id}",
         cheapest_price=cheapest.price,
         total_options=len(all_options)
+    )
+
+
+# Brand products endpoint - find all products from same brand across stores
+@router.get("/specials/brand-products/{special_id}", response_model=BrandProductsResult)
+def get_brand_products(
+    special_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Find ALL products from the same brand across all stores.
+
+    Given a specific special, finds all other products with the same brand
+    currently on special at any store.
+
+    Example: Given "Coca-Cola Classic 10 pack" at Woolworths, find all other
+    Coca-Cola products on special at Woolworths, Coles, IGA, ALDI.
+    """
+    today = date.today()
+
+    # Get the reference special
+    reference = db.query(Special).join(Store).filter(
+        Special.id == special_id
+    ).first()
+
+    if not reference:
+        raise HTTPException(status_code=404, detail="Special not found")
+
+    # Get the brand
+    brand = reference.brand
+    if not brand:
+        # Try to extract brand from name if not set
+        from app.services.brand_extractor import extract_brand_from_name
+        brand = extract_brand_from_name(reference.name)
+
+    if not brand:
+        # No brand found - return empty result
+        reference_price = SpecialStorePrice(
+            special_id=reference.id,
+            store_id=reference.store_id,
+            store_name=reference.store.name,
+            store_slug=reference.store.slug,
+            price=reference.price,
+            was_price=reference.was_price,
+            discount_percent=reference.discount_percent,
+            unit_price=reference.unit_price,
+            image_url=reference.image_url,
+            product_url=reference.product_url,
+            valid_to=reference.valid_to
+        )
+        return BrandProductsResult(
+            brand="Unknown",
+            reference_product=reference_price,
+            brand_products=[],
+            cheapest_price=reference.price,
+            total_products=1,
+            stores_with_brand=[reference.store.name]
+        )
+
+    # Find all products with this brand across all stores
+    brand_specials = db.query(Special).join(Store).filter(
+        Special.valid_to >= today,
+        Special.brand.ilike(brand)  # Case-insensitive brand match
+    ).order_by(Special.price).all()
+
+    # Build reference product info
+    reference_price = SpecialStorePrice(
+        special_id=reference.id,
+        store_id=reference.store_id,
+        store_name=reference.store.name,
+        store_slug=reference.store.slug,
+        price=reference.price,
+        was_price=reference.was_price,
+        discount_percent=reference.discount_percent,
+        unit_price=reference.unit_price,
+        image_url=reference.image_url,
+        product_url=reference.product_url,
+        valid_to=reference.valid_to
+    )
+
+    # Build list of other brand products (excluding reference)
+    brand_products = []
+    stores_with_brand = set()
+    stores_with_brand.add(reference.store.name)
+
+    for special in brand_specials:
+        stores_with_brand.add(special.store.name)
+        if special.id != reference.id:
+            brand_products.append(SpecialStorePrice(
+                special_id=special.id,
+                store_id=special.store_id,
+                store_name=special.store.name,
+                store_slug=special.store.slug,
+                price=special.price,
+                was_price=special.was_price,
+                discount_percent=special.discount_percent,
+                unit_price=special.unit_price,
+                image_url=special.image_url,
+                product_url=special.product_url,
+                valid_to=special.valid_to
+            ))
+
+    # Find cheapest price
+    all_prices = [reference.price] + [p.price for p in brand_products]
+    cheapest_price = min(all_prices) if all_prices else reference.price
+
+    return BrandProductsResult(
+        brand=brand,
+        reference_product=reference_price,
+        brand_products=brand_products,
+        cheapest_price=cheapest_price,
+        total_products=len(brand_products) + 1,  # Include reference
+        stores_with_brand=sorted(list(stores_with_brand))
     )
 
 

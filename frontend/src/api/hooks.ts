@@ -22,6 +22,7 @@ import type {
   CategoryTreeResponse,
   BrandMatchResult,
   TypeMatchResult,
+  BrandProductsResult,
   FreshFoodsResponse,
 } from '../types';
 
@@ -41,6 +42,7 @@ export const queryKeys = {
   product: (id: number) => ['product', id] as const,
   brandMatch: (search: string) => ['brandMatch', search] as const,
   typeMatch: (id: number) => ['typeMatch', id] as const,
+  brandProducts: (id: number) => ['brandProducts', id] as const,
   freshFoods: ['freshFoods'] as const,
 };
 
@@ -253,6 +255,18 @@ export function useTypeMatch(specialId: number) {
   return useQuery({
     queryKey: queryKeys.typeMatch(specialId),
     queryFn: () => fetchJson<TypeMatchResult>(`/compare/specials/type-match/${specialId}`),
+    enabled: specialId > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook for finding all products from the same brand across stores
+ */
+export function useBrandProducts(specialId: number) {
+  return useQuery({
+    queryKey: queryKeys.brandProducts(specialId),
+    queryFn: () => fetchJson<BrandProductsResult>(`/compare/specials/brand-products/${specialId}`),
     enabled: specialId > 0,
     staleTime: 5 * 60 * 1000,
   });

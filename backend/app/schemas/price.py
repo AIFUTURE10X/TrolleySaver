@@ -156,6 +156,16 @@ class TypeMatchResult(BaseModel):
     total_options: int = 0
 
 
+class BrandProductsResult(BaseModel):
+    """Result of finding all products from the same brand across stores."""
+    brand: str  # The brand name
+    reference_product: SpecialStorePrice
+    brand_products: list[SpecialStorePrice]  # All products with this brand, sorted by price
+    cheapest_price: Decimal | None = None
+    total_products: int = 0
+    stores_with_brand: list[str] = []  # List of store names that have this brand on special
+
+
 # ============== Fresh Foods Schemas ==============
 
 class FreshFoodStorePrice(BaseModel):

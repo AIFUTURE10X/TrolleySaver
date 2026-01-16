@@ -6,8 +6,8 @@
  * 2. Type comparison - Different brands of same product type
  */
 import { useState, memo } from 'react';
-import { useTypeMatch, useBrandMatch } from '../../api/hooks';
-import type { Special, SpecialStorePrice, TypeMatchResult, BrandMatchResult } from '../../types';
+import { useTypeMatch, useBrandProducts } from '../../api/hooks';
+import type { Special, SpecialStorePrice, TypeMatchResult, BrandProductsResult } from '../../types';
 
 const STORE_COLORS: Record<string, string> = {
   woolworths: 'bg-[#00A651]',
@@ -196,7 +196,7 @@ function TypeComparisonView({ data }: { data: TypeMatchResult }) {
   );
 }
 
-// Brand comparison - same product across different stores
+// Brand comparison - ALL products from same brand across stores
 function BrandComparisonView({
   special,
   data,
@@ -204,7 +204,7 @@ function BrandComparisonView({
   error,
 }: {
   special: Special;
-  data: BrandMatchResult[] | undefined;
+  data: BrandProductsResult | undefined;
   isLoading: boolean;
   error: Error | null;
 }) {
@@ -219,30 +219,32 @@ function BrandComparisonView({
   if (error) {
     return (
       <div className="text-center py-8 text-red-500">
-        <div className="text-4xl mb-4">❌</div>
+        <div className="text-4xl mb-4">X</div>
         <p>Failed to load brand comparison data</p>
       </div>
     );
   }
 
-  // Find the result that matches our product (by name or brand+size)
-  const matchingProduct = data?.find(
-    (result) =>
-      result.product_name.toLowerCase() === special.name.toLowerCase() ||
-      (result.brand?.toLowerCase() === special.brand?.toLowerCase() &&
-        result.size === special.size)
-  );
-
-  // If no exact match, use the first result if available
-  const productToShow = matchingProduct || (data && data.length > 0 ? data[0] : null);
-
-  if (!productToShow || productToShow.stores.length === 0) {
+  if (!data || data.brand === 'Unknown') {
     return (
       <div className="text-center py-8 text-gray-500">
-        <div className="text-4xl mb-4">🔍</div>
-        <p className="font-medium">This product is only available at {special.store_name}.</p>
+        <div className="text-4xl mb-4">?</div>
+        <p className="font-medium">No brand information available.</p>
         <p className="text-sm mt-2">
-          No other stores currently have this exact product on special.
+          Try the "Compare Product Types" tab to see similar products.
+        </p>
+      </div>
+    );
+  }
+
+  // No other brand products found
+  if (data.brand_products.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <div className="text-4xl mb-4">1</div>
+        <p className="font-medium">Only {data.brand} product on special</p>
+        <p className="text-sm mt-2">
+          This is the only {data.brand} product currently on special.
         </p>
         <p className="text-xs mt-4 text-gray-400">
           Try the "Compare Product Types" tab to see similar products from different brands.
@@ -251,83 +253,50 @@ function BrandComparisonView({
     );
   }
 
-  // Single store case
-  if (productToShow.stores.length === 1) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        <div className="text-4xl mb-4">🏪</div>
-        <p className="font-medium">Only available at one store</p>
-        <p className="text-sm mt-2">
-          {productToShow.product_name} is currently only on special at{' '}
-          {productToShow.stores[0].store_name}.
-        </p>
-      </div>
-    );
-  }
+  // All products (reference + others), sorted by price
+  const allProducts = [data.reference_product, ...data.brand_products]
+    .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
 
-  // Calculate cheapest price
-  const prices = productToShow.stores.map((s) =>
-    parseFloat(s.price.replace('$', ''))
-  );
-  const cheapestPrice = Math.min(...prices);
-  const currentStorePrice = productToShow.stores.find(
-    (s) => s.store_id === special.store_id
-  );
+  const cheapestPrice = parseFloat(data.cheapest_price || allProducts[0].price);
 
   return (
     <div className="space-y-4">
-      {/* Product info */}
-      <div className="text-sm text-gray-500">
-        <strong>{productToShow.product_name}</strong>
-        {productToShow.brand && ` by ${productToShow.brand}`}
-        {productToShow.size && ` (${productToShow.size})`}
-      </div>
-
-      {/* Store comparison list */}
-      <div className="space-y-2">
-        {productToShow.stores
-          .sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')))
-          .map((store) => {
-            const price = parseFloat(store.price.replace('$', ''));
-            const isCheapest = price === cheapestPrice;
-            const isCurrentStore = store.store_id === special.store_id;
-
-            return (
-              <PriceRow
-                key={store.special_id}
-                item={store}
-                isCheapest={isCheapest}
-                isReference={isCurrentStore}
-              />
-            );
-          })}
-      </div>
-
-      {/* Savings summary */}
-      {productToShow.savings_potential && (
-        <div className="bg-green-50 rounded-lg p-4 text-sm">
-          <div className="font-medium text-green-900">
-            Potential savings: <strong>{productToShow.savings_potential}</strong>
-          </div>
-          {productToShow.cheapest_store && (
-            <div className="text-green-700">
-              Best price at: <strong>{productToShow.cheapest_store}</strong>
-            </div>
-          )}
-          {currentStorePrice && parseFloat(currentStorePrice.price.replace('$', '')) !== cheapestPrice && (
-            <div className="text-green-600 mt-2">
-              Switch to {productToShow.cheapest_store} and save{' '}
-              <strong>
-                ${(parseFloat(currentStorePrice.price.replace('$', '')) - cheapestPrice).toFixed(2)}
-              </strong>
-            </div>
-          )}
+      {/* Brand header */}
+      <div className="bg-blue-50 rounded-lg p-3">
+        <div className="text-sm font-medium text-blue-900">
+          All <strong>{data.brand}</strong> products on special
         </div>
-      )}
+        <div className="text-xs text-blue-700 mt-1">
+          {data.total_products} products across {data.stores_with_brand.length} stores: {data.stores_with_brand.join(', ')}
+        </div>
+      </div>
 
-      {/* Store count */}
-      <div className="text-xs text-gray-400 text-center">
-        Available at {productToShow.stores.length} stores on special this week
+      {/* Products list */}
+      <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+        {allProducts.map((product) => {
+          const price = parseFloat(product.price);
+          const isCheapest = price === cheapestPrice;
+          const isReference = product.special_id === data.reference_product.special_id;
+
+          return (
+            <PriceRow
+              key={product.special_id}
+              item={product}
+              isCheapest={isCheapest}
+              isReference={isReference}
+            />
+          );
+        })}
+      </div>
+
+      {/* Summary */}
+      <div className="bg-green-50 rounded-lg p-3 text-sm">
+        <div className="font-medium text-green-900">
+          {data.total_products} {data.brand} products on special
+        </div>
+        <div className="text-green-700 mt-1">
+          Cheapest: <strong>${cheapestPrice.toFixed(2)}</strong>
+        </div>
       </div>
     </div>
   );
@@ -339,13 +308,12 @@ export function CompareView({ special, onClose }: CompareViewProps) {
   // Type comparison hook
   const { data: typeData, isLoading: typeLoading, error: typeError } = useTypeMatch(special.id);
 
-  // Brand comparison hook - build search term from product name
-  const brandSearchTerm = special.name;
+  // Brand comparison hook - fetch all products from same brand
   const {
     data: brandData,
     isLoading: brandLoading,
     error: brandError
-  } = useBrandMatch(mode === 'brand' ? brandSearchTerm : '');
+  } = useBrandProducts(mode === 'brand' ? special.id : 0);
 
   // Use the appropriate loading/error states based on mode
   const isLoading = mode === 'type' ? typeLoading : brandLoading;
