@@ -1,0 +1,55 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: grocery-postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-grocery}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-grocery123}
+      - POSTGRES_DB=${POSTGRES_DB:-grocery_prices}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grocery -d grocery_prices"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: grocery-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+      - ../data:/data
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-grocery}:${POSTGRES_PASSWORD:-grocery123}@postgres:5432/${POSTGRES_DB:-grocery_prices}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Redis (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: grocery-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:

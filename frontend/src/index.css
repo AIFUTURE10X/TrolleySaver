@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+:root {
+  --woolworths: #1a8f1a;
+  --coles: #ed1c24;
+  --aldi: #00529b;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 min-h-screen;
+}

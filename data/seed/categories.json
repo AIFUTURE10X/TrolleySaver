@@ -1,0 +1,13 @@
+[
+  {"name": "Dairy & Eggs", "slug": "dairy-eggs"},
+  {"name": "Bread & Bakery", "slug": "bread-bakery"},
+  {"name": "Meat & Seafood", "slug": "meat-seafood"},
+  {"name": "Fruits & Vegetables", "slug": "fruits-vegetables"},
+  {"name": "Pantry", "slug": "pantry"},
+  {"name": "Drinks", "slug": "drinks"},
+  {"name": "Frozen", "slug": "frozen"},
+  {"name": "Cleaning & Household", "slug": "cleaning-household"},
+  {"name": "Personal Care", "slug": "personal-care"},
+  {"name": "Baby", "slug": "baby"},
+  {"name": "Pet", "slug": "pet"}
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Woolworths",
+    "slug": "woolworths",
+    "logo_url": "https://www.woolworths.com.au/images/logo.png",
+    "website_url": "https://www.woolworths.com.au",
+    "catalogue_url": "https://www.woolworths.com.au/shop/browse/specials",
+    "specials_day": "wednesday"
+  },
+  {
+    "name": "Coles",
+    "slug": "coles",
+    "logo_url": "https://www.coles.com.au/images/logo.png",
+    "website_url": "https://www.coles.com.au",
+    "catalogue_url": "https://www.coles.com.au/on-special",
+    "specials_day": "wednesday"
+  },
+  {
+    "name": "ALDI",
+    "slug": "aldi",
+    "logo_url": "https://www.aldi.com.au/images/logo.png",
+    "website_url": "https://www.aldi.com.au",
+    "catalogue_url": "https://www.aldi.com.au/en/special-buys/",
+    "specials_day": "wednesday"
+  }
+]

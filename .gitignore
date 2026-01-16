@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# Node.js
+node_modules/
+
+# Environment
+.env
+.env.local
+*.local
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+frontend/dist/
+
+# Playwright
+.playwright-mcp/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+nul
+docker/aus_grocery_price_database/
