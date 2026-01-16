@@ -68,6 +68,23 @@ npm run dev
 - **Frontend**: React, Vite, TailwindCSS, TypeScript
 - **Scraping**: Firecrawl API
 
+## Claude Code Integration
+
+This project is configured for use with [Claude Code](https://claude.ai/code) and includes:
+
+- **Playwright MCP Server** - Browser automation for testing the UI
+- **Project settings** in `.claude/` for permissions and configuration
+
+### Browser Testing with Playwright MCP
+
+The Playwright MCP server enables Claude to:
+- Navigate and interact with the running application
+- Take screenshots to verify UI changes
+- Fill forms and click elements for testing
+- Inspect network requests and console output
+
+See `.claude/CLAUDE.md` for project-specific instructions.
+
 ## Note on Docker
 
 The `docker/` folder contains an alternative setup using the [aus_grocery_price_database](https://github.com/tjhowse/aus_grocery_price_database) project. **This is not currently used.** The application runs directly with Python and Node.js as described above.
