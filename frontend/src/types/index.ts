@@ -144,3 +144,72 @@ export interface FreshFoodsResponse {
   total_products: number;
   last_updated: string | null;
 }
+
+// Staples types
+export interface StapleStorePrice {
+  store_id: number;
+  store_name: string;
+  store_slug: string;
+  price: string;
+  price_numeric: number;
+  unit_price: string | null;
+  image_url: string | null;
+  product_url: string | null;
+}
+
+export interface StapleProduct {
+  id: number;
+  name: string;
+  category: string;
+  category_display: string;
+  unit: string | null;
+  image_url: string | null;
+  prices: StapleStorePrice[];
+  best_price: StapleStorePrice | null;
+  price_range: string | null;
+  savings_amount: number | null;
+}
+
+export interface StaplesListResponse {
+  products: StapleProduct[];
+  total: number;
+  categories: string[];
+  has_more: boolean;
+}
+
+export interface StapleCategory {
+  slug: string;
+  name: string;
+  count: number;
+  icon: string | null;
+}
+
+export interface StaplesCategoriesResponse {
+  categories: StapleCategory[];
+  total_products: number;
+}
+
+export interface BasketItem {
+  product_id: number;
+  product_name: string;
+  quantity: number;
+}
+
+export interface BasketStoreTotal {
+  store_id: number;
+  store_name: string;
+  store_slug: string;
+  total: string;
+  total_numeric: number;
+  items_available: number;
+  items_missing: string[];
+}
+
+export interface BasketCompareResponse {
+  basket_totals: BasketStoreTotal[];
+  best_store: string | null;
+  best_total: string | null;
+  best_total_numeric: number | null;
+  savings_vs_worst: string | null;
+  savings_numeric: number | null;
+}

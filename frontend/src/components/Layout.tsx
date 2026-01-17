@@ -8,9 +8,9 @@ export function Layout() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl">🏷️</span>
+              <span className="text-2xl">🛒</span>
               <span className="font-bold text-xl text-gray-900">
-                Supermarket Specials
+                Trolley Saver
               </span>
             </Link>
 
@@ -20,6 +20,12 @@ export function Layout() {
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Specials
+              </Link>
+              <Link
+                to="/staples"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Staples
               </Link>
               <Link
                 to="/compare"
@@ -42,12 +48,13 @@ export function Layout() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-500">
-              Find the best weekly specials from Australian supermarkets
+              Your smart shopping companion for Australian supermarkets
             </p>
             <div className="flex gap-6">
               <span className="text-sm font-medium text-[#00A651]">Woolworths</span>
               <span className="text-sm font-medium text-[#E01A22]">Coles</span>
               <span className="text-sm font-medium text-[#00448C]">ALDI</span>
+              <span className="text-sm font-medium text-[#FF6B00]">IGA</span>
             </div>
           </div>
         </div>

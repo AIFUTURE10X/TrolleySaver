@@ -24,6 +24,11 @@ import type {
   TypeMatchResult,
   BrandProductsResult,
   FreshFoodsResponse,
+  StaplesListResponse,
+  StaplesCategoriesResponse,
+  StapleProduct,
+  BasketItem,
+  BasketCompareResponse,
 } from '../types';
 
 const API_BASE = '/api';
@@ -44,6 +49,11 @@ export const queryKeys = {
   typeMatch: (id: number) => ['typeMatch', id] as const,
   brandProducts: (id: number) => ['brandProducts', id] as const,
   freshFoods: ['freshFoods'] as const,
+  // Staples keys
+  staples: (filters: StaplesFilters) => ['staples', filters] as const,
+  staplesCategories: ['staplesCategories'] as const,
+  staple: (id: number) => ['staple', id] as const,
+  basketCompare: (items: BasketItem[]) => ['basketCompare', items] as const,
 };
 
 // Types
@@ -54,6 +64,15 @@ export interface SpecialsFilters {
   min_discount?: number;
   search?: string;
   sort?: 'discount' | 'price' | 'name';
+}
+
+export interface StaplesFilters {
+  category?: string;
+  store?: string;
+  sort?: 'name' | 'price_low' | 'price_high' | 'savings';
+  search?: string;
+  limit?: number;
+  offset?: number;
 }
 
 // Fetch helper
@@ -281,5 +300,107 @@ export function useFreshFoods(limit: number = 50) {
     queryKey: queryKeys.freshFoods,
     queryFn: () => fetchJson<FreshFoodsResponse>(`/compare/fresh-foods?limit=${limit}`),
     staleTime: 30 * 60 * 1000, // 30 minutes - produce prices stable within day
+  });
+}
+
+// ============== Staples Hooks ==============
+
+/**
+ * Hook for fetching staple products with prices from all stores
+ */
+export function useStaples(filters: StaplesFilters) {
+  return useQuery({
+    queryKey: queryKeys.staples(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (filters.category) params.set('category', filters.category);
+      if (filters.store) params.set('store', filters.store);
+      if (filters.sort) params.set('sort', filters.sort);
+      if (filters.search) params.set('search', filters.search);
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.offset) params.set('offset', String(filters.offset));
+
+      const query = params.toString();
+      return fetchJson<StaplesListResponse>(`/staples/${query ? `?${query}` : ''}`);
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * Hook for infinite scrolling staples list (Load More)
+ */
+export function useStaplesInfinite(filters: Omit<StaplesFilters, 'offset'>) {
+  const limit = filters.limit || 100;
+
+  return useInfiniteQuery({
+    queryKey: ['staplesInfinite', filters] as const,
+    queryFn: async ({ pageParam = 0 }) => {
+      const params = new URLSearchParams();
+      if (filters.category) params.set('category', filters.category);
+      if (filters.store) params.set('store', filters.store);
+      if (filters.sort) params.set('sort', filters.sort);
+      if (filters.search) params.set('search', filters.search);
+      params.set('limit', String(limit));
+      params.set('offset', String(pageParam));
+
+      const query = params.toString();
+      const data = await fetchJson<StaplesListResponse>(`/staples/${query ? `?${query}` : ''}`);
+
+      return {
+        ...data,
+        offset: pageParam,
+        limit,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.has_more) return undefined;
+      return lastPage.offset + lastPage.limit;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook for fetching staple categories with counts
+ */
+export function useStaplesCategories() {
+  return useQuery({
+    queryKey: queryKeys.staplesCategories,
+    queryFn: () => fetchJson<StaplesCategoriesResponse>('/staples/categories'),
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+}
+
+/**
+ * Hook for fetching a single staple product
+ */
+export function useStaple(productId: number) {
+  return useQuery({
+    queryKey: queryKeys.staple(productId),
+    queryFn: () => fetchJson<StapleProduct>(`/staples/${productId}`),
+    enabled: productId > 0,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook for comparing a basket across stores
+ */
+export function useBasketCompare(items: BasketItem[]) {
+  return useQuery({
+    queryKey: queryKeys.basketCompare(items),
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE}/staples/basket-compare`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      if (!response.ok) throw new Error(`API Error: ${response.status}`);
+      return response.json() as Promise<BasketCompareResponse>;
+    },
+    enabled: items.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 }
