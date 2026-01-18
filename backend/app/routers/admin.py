@@ -569,13 +569,13 @@ def import_everyday_prices(prices: list[EverydayPriceImport]):
                 existing_price.price = item.price
                 existing_price.unit_price = item.unit_price
                 existing_price.is_special = item.is_special
-                existing_price.updated_at = datetime.now()
             else:
                 price = Price(
                     store_product_id=store_product.id,
                     price=item.price,
                     unit_price=item.unit_price,
-                    is_special=item.is_special
+                    is_special=item.is_special,
+                    source="import"
                 )
                 db.add(price)
                 created_prices += 1
