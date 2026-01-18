@@ -89,10 +89,10 @@ def import_specials(specials: list[SpecialImport]):
                 skipped += 1
                 continue
 
-            # Create special
+            # Create special (truncate name to 255 chars for DB constraint)
             special = Special(
                 store_id=stores[item.store_slug],
-                name=item.product_name,
+                name=item.product_name[:255] if item.product_name else "",
                 brand=item.brand,
                 size=item.size,
                 category=item.category,
