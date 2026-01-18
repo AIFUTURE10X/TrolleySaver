@@ -490,9 +490,13 @@ def get_staple_categories(db: Session = Depends(get_db)):
         all_cat_ids.extend(cat_config.get("parent_ids", []))
     all_cat_ids = list(set(all_cat_ids))
 
+    # Include specials with matching category_id OR without category_id (for keyword matching)
     specials = db.query(Special).filter(
         Special.valid_to >= today,
-        Special.category_id.in_(all_cat_ids)
+        or_(
+            Special.category_id.in_(all_cat_ids),
+            Special.category_id.is_(None)
+        )
     ).all()
 
     for special in specials:
