@@ -272,10 +272,21 @@ def list_staples(
             store_id_filter = store_obj.id
 
     # ========== 1. Query Specials table ==========
+    # Get ALL valid specials, then filter by category using keywords
+    # This ensures we catch fresh products even if category_id isn't set
     specials_query = db.query(Special).join(Store).filter(
-        Special.valid_to >= today,
-        Special.category_id.in_(filter_cat_ids)
+        Special.valid_to >= today
     )
+
+    # Optionally filter by category_id if available (performance optimization)
+    # But also include specials without category_id for keyword matching
+    if filter_cat_ids:
+        specials_query = specials_query.filter(
+            or_(
+                Special.category_id.in_(filter_cat_ids),
+                Special.category_id.is_(None)  # Include uncategorized for keyword matching
+            )
+        )
 
     if store_id_filter:
         specials_query = specials_query.filter(Special.store_id == store_id_filter)

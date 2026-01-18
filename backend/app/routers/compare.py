@@ -33,6 +33,54 @@ router = APIRouter(prefix="/compare", tags=["compare"])
 # ============== Fresh Foods Comparison Endpoints ==============
 # NOTE: This route must be defined BEFORE /{product_id} to avoid routing conflicts
 
+# Keywords for fresh food filtering (used when category_id not set)
+PRODUCE_KEYWORDS = [
+    "apple", "banana", "orange", "mango", "grape", "strawberry", "blueberry",
+    "raspberry", "watermelon", "melon", "pear", "peach", "plum", "kiwi",
+    "avocado", "lemon", "lime", "mandarin", "pineapple", "cherry", "nectarine",
+    "potato", "onion", "carrot", "tomato", "lettuce", "broccoli", "capsicum",
+    "cucumber", "spinach", "mushroom", "zucchini", "corn", "bean", "pea",
+    "cauliflower", "celery", "garlic", "ginger", "chilli", "cabbage", "pumpkin",
+    "sweet potato", "salad", "herb", "vegetable", "fruit"
+]
+
+MEAT_KEYWORDS = [
+    "chicken", "beef", "lamb", "pork", "mince", "steak", "roast", "chop",
+    "sausage", "bacon", "thigh", "breast", "wing", "drumstick", "fillet",
+    "cutlet", "rump", "scotch", "salmon", "prawn", "fish", "barramundi",
+    "tuna", "snapper", "calamari", "seafood", "meat"
+]
+
+# Exclusion keywords for processed foods
+FRESH_EXCLUSIONS = [
+    "frozen", "oven bake", "microwave", "heat & eat", "ready to cook",
+    "schnitzel", "nugget", "crumbed", "battered", "coated", "breaded",
+    "sauce", "paste", "powder", "seasoning", "stock", "marinade",
+    "canned", "tinned", "preserved", "pickled", "jarred",
+    "juice", "cordial", "soft drink", "wine", "beer", "cider",
+    "yoghurt", "yogurt", "cheese", "milk", "cream", "butter", "ice cream",
+    "chip", "crisp", "biscuit", "chocolate", "candy", "confectionery"
+]
+
+
+def _is_fresh_produce(name: str) -> bool:
+    """Check if a product name matches fresh produce keywords."""
+    name_lower = name.lower()
+    # Check exclusions first
+    if any(excl in name_lower for excl in FRESH_EXCLUSIONS):
+        return False
+    return any(kw in name_lower for kw in PRODUCE_KEYWORDS)
+
+
+def _is_fresh_meat(name: str) -> bool:
+    """Check if a product name matches fresh meat/seafood keywords."""
+    name_lower = name.lower()
+    # Check exclusions first
+    if any(excl in name_lower for excl in FRESH_EXCLUSIONS):
+        return False
+    return any(kw in name_lower for kw in MEAT_KEYWORDS)
+
+
 @router.get("/fresh-foods", response_model=FreshFoodsResponse)
 def get_fresh_foods(
     limit: int = Query(50, le=100, description="Max items per category"),
@@ -42,8 +90,10 @@ def get_fresh_foods(
     Get fresh food prices (produce and meat) across all stores.
 
     Returns products grouped by category with prices from each store.
-    This includes regular prices, not just specials.
+    Pulls from both regular products AND specials tables.
     """
+    today = date.today()
+
     # Find produce categories
     produce_cats = db.query(Category).filter(
         Category.slug.in_(["fruit-veg", "fruit-vegetables", "fresh-fruit", "fresh-vegetables"])
@@ -78,8 +128,95 @@ def get_fresh_foods(
     # Get stores
     stores = {s.id: s for s in db.query(Store).all()}
 
-    # Helper to get fresh food items for a category
-    def get_category_items(category_ids: list[int], category_name: str) -> list[FreshFoodItem]:
+    # Helper to get fresh food items from specials
+    def get_specials_items(category_ids: list[int], category_name: str, keyword_filter) -> list[FreshFoodItem]:
+        """Get fresh food items from the specials table."""
+        # Query specials - include both categorized and uncategorized items
+        specials_query = db.query(Special).join(Store).filter(
+            Special.valid_to >= today
+        )
+
+        if category_ids:
+            specials_query = specials_query.filter(
+                or_(
+                    Special.category_id.in_(category_ids),
+                    Special.category_id.is_(None)  # Include uncategorized for keyword matching
+                )
+            )
+
+        specials = specials_query.all()
+
+        # Group specials by product name (to find same product across stores)
+        product_groups: dict[str, list[Special]] = {}
+
+        for special in specials:
+            # Apply keyword filter
+            if not keyword_filter(special.name):
+                continue
+
+            name_key = special.name.lower().strip()
+            if name_key not in product_groups:
+                product_groups[name_key] = []
+            product_groups[name_key].append(special)
+
+        items = []
+        for name_key, group in product_groups.items():
+            # Get unique prices from different stores
+            store_prices = []
+            prices_numeric = []
+            seen_stores = set()
+
+            # Sort by price to get cheapest first per store
+            group.sort(key=lambda s: float(s.price))
+
+            for special in group:
+                if special.store_id in seen_stores:
+                    continue
+                seen_stores.add(special.store_id)
+
+                store = stores.get(special.store_id)
+                if not store:
+                    continue
+
+                store_prices.append(FreshFoodStorePrice(
+                    store_id=store.id,
+                    store_name=store.name,
+                    store_slug=store.slug,
+                    price=special.price,
+                    unit_price=special.unit_price,
+                    image_url=special.image_url,
+                    product_url=special.product_url
+                ))
+                prices_numeric.append(float(special.price))
+
+            if not store_prices:
+                continue
+
+            min_price = min(prices_numeric)
+            max_price = max(prices_numeric)
+            cheapest = next((sp for sp in store_prices if float(sp.price) == min_price), None)
+
+            # Use first special for product info
+            first = group[0]
+            items.append(FreshFoodItem(
+                product_id=first.id,
+                product_name=first.name,
+                brand=first.brand,
+                size=first.size,
+                category=category_name,
+                stores=sorted(store_prices, key=lambda x: float(x.price)),
+                cheapest_store=cheapest.store_name if cheapest else None,
+                cheapest_price=Decimal(str(min_price)),
+                price_range=f"${min_price:.2f} - ${max_price:.2f}" if min_price != max_price else None
+            ))
+
+            if len(items) >= limit:
+                break
+
+        return items
+
+    # Helper to get fresh food items from products table
+    def get_products_items(category_ids: list[int], category_name: str) -> list[FreshFoodItem]:
         if not category_ids:
             return []
 
@@ -153,8 +290,25 @@ def get_fresh_foods(
 
         return items
 
-    produce_items = get_category_items(produce_cat_ids, "produce")
-    meat_items = get_category_items(meat_cat_ids, "meat")
+    # Get items from both products table AND specials table
+    produce_from_products = get_products_items(produce_cat_ids, "produce")
+    produce_from_specials = get_specials_items(produce_cat_ids, "produce", _is_fresh_produce)
+
+    meat_from_products = get_products_items(meat_cat_ids, "meat")
+    meat_from_specials = get_specials_items(meat_cat_ids, "meat", _is_fresh_meat)
+
+    # Merge results (avoid duplicates by name)
+    def merge_items(from_products: list[FreshFoodItem], from_specials: list[FreshFoodItem]) -> list[FreshFoodItem]:
+        seen_names = {item.product_name.lower().strip() for item in from_products}
+        merged = list(from_products)
+        for item in from_specials:
+            if item.product_name.lower().strip() not in seen_names:
+                merged.append(item)
+                seen_names.add(item.product_name.lower().strip())
+        return merged[:limit]
+
+    produce_items = merge_items(produce_from_products, produce_from_specials)
+    meat_items = merge_items(meat_from_products, meat_from_specials)
 
     return FreshFoodsResponse(
         produce=produce_items,
