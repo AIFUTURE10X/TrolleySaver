@@ -66,6 +66,8 @@ class StoreProductImporter:
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 "Accept": "application/json, text/plain, */*",
                 "Accept-Language": "en-AU,en;q=0.9",
+                "Origin": "https://www.woolworths.com.au",
+                "Referer": "https://www.woolworths.com.au/",
             }
         )
 
@@ -101,6 +103,7 @@ class StoreProductImporter:
                         "pageNumber": page,
                         "pageSize": page_size,
                         "sortType": "TraderRelevance",
+                        "url": f"/shop/browse/{category_slug}",
                         "location": "",
                         "formatObject": '{"name":""}',
                     }
@@ -300,24 +303,32 @@ class StoreProductImporter:
             soup = BeautifulSoup(html, 'lxml')
 
             # Find __NEXT_DATA__ script
-            for script in soup.find_all('script', id='__NEXT_DATA__'):
+            script = soup.find('script', id='__NEXT_DATA__')
+            if script:
                 try:
                     data = json.loads(script.string)
                     props = data.get('props', {})
                     page_props = props.get('pageProps', {})
 
-                    # Look for products in various locations
-                    if 'initialState' in page_props:
+                    # Primary location: searchResults.results
+                    if 'searchResults' in page_props:
+                        search_results = page_props['searchResults']
+                        if 'results' in search_results:
+                            products.extend(search_results['results'])
+
+                    # Fallback: initialState.search.results
+                    if not products and 'initialState' in page_props:
                         state = page_props['initialState']
                         if 'search' in state:
                             results = state['search'].get('results', [])
                             products.extend(results)
 
-                    if 'products' in page_props:
+                    # Fallback: direct products
+                    if not products and 'products' in page_props:
                         products.extend(page_props['products'])
 
                 except json.JSONDecodeError:
-                    continue
+                    pass
 
         except Exception as e:
             logger.debug(f"Error extracting Coles products: {e}")
@@ -411,31 +422,44 @@ class StoreProductImporter:
 
     def _get_or_create_category(self, db: Session, slug: str) -> Optional[Category]:
         """Get or create a category by slug."""
-        # Map slugs to display names
-        category_names = {
-            "fruit-veg": "Fruits & Vegetables",
-            "fruit-vegetables": "Fruits & Vegetables",
-            "meat-seafood": "Meat & Seafood",
-            "dairy-eggs-fridge": "Dairy & Eggs",
-            "bakery": "Bread & Bakery",
-            "pantry": "Pantry",
-            "drinks": "Drinks",
-            "freezer": "Frozen",
-            "frozen": "Frozen",
-            "health-beauty": "Personal Care",
-            "household": "Cleaning & Household",
-            "baby": "Baby",
-            "pet": "Pet",
+        # First, try to find by slug (most reliable)
+        category = db.query(Category).filter(Category.slug == slug).first()
+        if category:
+            return category
+
+        # Map slugs to display names and alternate slugs
+        category_mappings = {
+            "fruit-veg": {"name": "Fruit & Veg", "alt_slugs": ["fruit-vegetables"]},
+            "fruit-vegetables": {"name": "Fruit & Veg", "alt_slugs": ["fruit-veg"]},
+            "meat-seafood": {"name": "Poultry, Meat & Seafood", "alt_slugs": []},
+            "dairy-eggs-fridge": {"name": "Dairy, Eggs & Fridge", "alt_slugs": []},
+            "bakery": {"name": "Bakery", "alt_slugs": []},
+            "pantry": {"name": "Pantry", "alt_slugs": []},
+            "drinks": {"name": "Drinks", "alt_slugs": []},
+            "freezer": {"name": "Frozen", "alt_slugs": ["frozen"]},
+            "frozen": {"name": "Frozen", "alt_slugs": ["freezer"]},
+            "health-beauty": {"name": "Health & Beauty", "alt_slugs": []},
+            "household": {"name": "Household", "alt_slugs": []},
+            "baby": {"name": "Baby", "alt_slugs": []},
+            "pet": {"name": "Pet", "alt_slugs": []},
         }
 
-        name = category_names.get(slug, slug.replace("-", " ").title())
+        mapping = category_mappings.get(slug, {"name": slug.replace("-", " ").title(), "alt_slugs": []})
 
+        # Try alternate slugs
+        for alt_slug in mapping["alt_slugs"]:
+            category = db.query(Category).filter(Category.slug == alt_slug).first()
+            if category:
+                return category
+
+        # Try by name (case insensitive)
         category = db.query(Category).filter(
-            Category.name.ilike(name)
+            Category.name.ilike(mapping["name"])
         ).first()
 
         if not category:
-            category = Category(name=name, slug=slug)
+            # Create new category
+            category = Category(name=mapping["name"], slug=slug)
             db.add(category)
             db.flush()
 
@@ -503,6 +527,166 @@ class StoreProductImporter:
 
         return results
 
+    def import_iga_products(self, search_terms: list[str] = None, max_per_term: int = 50) -> int:
+        """
+        Import products from IGA Shop API.
+
+        Args:
+            search_terms: List of search terms to fetch products
+            max_per_term: Maximum products per search term
+
+        Returns: Number of products imported
+        """
+        if search_terms is None:
+            # Fresh produce search terms
+            search_terms = [
+                "banana", "apple", "orange", "grape", "strawberry", "mango", "avocado",
+                "potato", "onion", "carrot", "tomato", "lettuce", "broccoli", "capsicum",
+                "cucumber", "spinach", "mushroom", "celery", "corn", "beans",
+                "chicken", "beef", "lamb", "pork", "mince", "sausage", "steak",
+                "salmon", "fish", "prawns"
+            ]
+
+        db = SessionLocal()
+        try:
+            store = db.query(Store).filter(Store.slug == "iga").first()
+            if not store:
+                logger.error("IGA store not found in database")
+                return 0
+
+            # Get or create Fruit & Veg category
+            category = self._get_or_create_category(db, "fruit-veg")
+
+            total_imported = 0
+            seen_products = set()  # Avoid duplicates
+
+            store_id = "32600"  # Erskine Park IGA
+            base_url = f"https://www.igashop.com.au/api/storefront/stores/{store_id}/search"
+
+            for term in search_terms:
+                try:
+                    params = {"q": term, "take": max_per_term}
+                    response = self.client.get(base_url, params=params)
+
+                    if response.status_code != 200:
+                        logger.warning(f"IGA API returned {response.status_code} for '{term}'")
+                        continue
+
+                    data = response.json()
+                    items = data.get("items", [])
+
+                    for item in items:
+                        product_id = item.get("productId", "")
+                        if product_id in seen_products:
+                            continue
+                        seen_products.add(product_id)
+
+                        imported = self._import_iga_product(db, store, category, item)
+                        if imported:
+                            total_imported += 1
+
+                    db.commit()
+                    logger.info(f"IGA '{term}': found {len(items)} items")
+
+                except Exception as e:
+                    logger.error(f"Error fetching IGA products for '{term}': {e}")
+                    continue
+
+            return total_imported
+
+        finally:
+            db.close()
+
+    def _import_iga_product(
+        self, db: Session, store: Store, category: Category, data: dict
+    ) -> bool:
+        """Import a single IGA product."""
+        try:
+            name = data.get("name")
+            if not name:
+                return False
+
+            product_id = data.get("productId", "")
+            brand = data.get("brand", "")
+            price_numeric = data.get("priceNumeric")
+
+            if not price_numeric or price_numeric <= 0:
+                return False
+
+            # Get image URL
+            image_data = data.get("image", {})
+            image_url = image_data.get("default") if image_data else None
+
+            # Get unit price
+            unit_price_str = data.get("pricePerUnit", "")
+
+            # Determine if it's fresh produce
+            categories = data.get("categories", [])
+            is_fresh = any(
+                c.get("retailerId") in ["Fruit_and_Vegetable", "Fruit", "Vegetables", "Meat", "Seafood"]
+                for c in categories
+            )
+
+            # Find or create product
+            product = db.query(Product).filter(
+                Product.name.ilike(name)
+            ).first()
+
+            if not product:
+                product = Product(
+                    name=name,
+                    brand=brand if brand else None,
+                    category_id=category.id if category else None,
+                    image_url=image_url,
+                    is_key_product=False,
+                )
+                db.add(product)
+                db.flush()
+
+            # Get or create store product
+            store_product = db.query(StoreProduct).filter(
+                StoreProduct.product_id == product.id,
+                StoreProduct.store_id == store.id
+            ).first()
+
+            if not store_product:
+                store_product = StoreProduct(
+                    product_id=product.id,
+                    store_id=store.id,
+                    store_product_id=product_id,
+                    store_product_name=name,
+                    image_url=image_url,
+                )
+                db.add(store_product)
+                db.flush()
+            elif not store_product.image_url and image_url:
+                store_product.image_url = image_url
+
+            # Add price record
+            unit_price = None
+            if unit_price_str:
+                # Parse unit price like "$4.90/kg"
+                try:
+                    price_part = unit_price_str.replace("$", "").split("/")[0]
+                    unit_price = Decimal(price_part)
+                except:
+                    pass
+
+            price_record = Price(
+                store_product_id=store_product.id,
+                price=Decimal(str(price_numeric)),
+                unit_price=unit_price,
+                is_special=data.get("priceSource") == "tpr",
+                source="import",
+            )
+            db.add(price_record)
+
+            return True
+
+        except Exception as e:
+            logger.debug(f"Error importing IGA product: {e}")
+            return False
+
 
 # CLI interface
 if __name__ == "__main__":
@@ -536,10 +720,46 @@ if __name__ == "__main__":
             print(f"Importing Coles {category}...")
             count = importer.import_coles_products(category)
             print(f"Imported {count} products")
+
+        elif sys.argv[1] == "--iga":
+            print("Importing IGA fresh produce...")
+            count = importer.import_iga_products()
+            print(f"Imported {count} products")
+
+        elif sys.argv[1] == "--all-fresh":
+            print("Importing fresh produce from all stores...")
+            results = {"woolworths": 0, "coles": 0, "iga": 0, "total": 0}
+
+            # Woolworths
+            print("\n=== Woolworths ===")
+            count = importer.import_woolworths_products("fruit-veg", max_pages=5)
+            results["woolworths"] = count
+            results["total"] += count
+            print(f"Woolworths: {count} products")
+
+            # Coles
+            print("\n=== Coles ===")
+            count = importer.import_coles_products("fruit-vegetables", max_pages=5)
+            results["coles"] = count
+            results["total"] += count
+            print(f"Coles: {count} products")
+
+            # IGA
+            print("\n=== IGA ===")
+            count = importer.import_iga_products()
+            results["iga"] = count
+            results["total"] += count
+            print(f"IGA: {count} products")
+
+            print(f"\nTotal imported: {results['total']}")
+            print(f"Results: {results}")
+
     else:
         print("Usage:")
         print("  python -m app.services.store_product_importer --quick")
         print("  python -m app.services.store_product_importer --full")
         print("  python -m app.services.store_product_importer --woolworths <category>")
         print("  python -m app.services.store_product_importer --coles <category>")
+        print("  python -m app.services.store_product_importer --iga")
+        print("  python -m app.services.store_product_importer --all-fresh")
         print("\nCategories: dairy-eggs-fridge, pantry, drinks, meat-seafood, fruit-veg, bakery, freezer, household")

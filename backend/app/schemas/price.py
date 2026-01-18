@@ -200,7 +200,93 @@ class FreshFoodsResponse(BaseModel):
     last_updated: str | None = None
 
 
+# ============== Staples Schemas ==============
+
+class StapleStorePrice(BaseModel):
+    """Price info for a staple product at a specific store."""
+    store_id: int
+    store_name: str
+    store_slug: str
+    price: str  # Display price like "$3.90"
+    price_numeric: int  # Price in cents for sorting
+    unit_price: str | None = None  # e.g., "$2.90/kg"
+    image_url: str | None = None
+    product_url: str | None = None
+    is_special: bool = False  # Whether this price is a special/sale price
+
+
+class StapleProduct(BaseModel):
+    """A staple product with prices from all stores."""
+    id: int
+    name: str
+    category: str  # "fresh-fruit", "fresh-vegetables", "fresh-meat", "seafood"
+    category_display: str  # "Fresh Fruit", "Fresh Vegetables", etc.
+    unit: str | None = None  # "per kg", "each", etc.
+    image_url: str | None = None
+    prices: list[StapleStorePrice]
+    best_price: StapleStorePrice | None = None
+    price_range: str | None = None  # "$2.99 - $4.20"
+    savings_amount: int | None = None  # Savings in cents between cheapest and most expensive
+
+
+class StaplesListResponse(BaseModel):
+    """Response for staples list endpoint."""
+    products: list[StapleProduct]
+    total: int
+    categories: list[str]
+    has_more: bool = False
+
+
+class StapleCategory(BaseModel):
+    """Category with product count."""
+    slug: str  # "fresh-fruit"
+    name: str  # "Fresh Fruit"
+    count: int
+    icon: str | None = None  # Optional emoji icon
+
+
+class StaplesCategoriesResponse(BaseModel):
+    """Response for staples categories endpoint."""
+    categories: list[StapleCategory]
+    total_products: int
+
+
+class BasketItem(BaseModel):
+    """Item in a shopping basket."""
+    product_id: int
+    product_name: str
+    quantity: int = 1
+
+
+class BasketStoreTotal(BaseModel):
+    """Total for a store in basket comparison."""
+    store_id: int
+    store_name: str
+    store_slug: str
+    total: str  # Display total like "$25.40"
+    total_numeric: int  # Total in cents
+    items_available: int
+    items_missing: list[str] = []
+
+
+class BasketCompareRequest(BaseModel):
+    """Request to compare a basket across stores."""
+    items: list[BasketItem]
+
+
+class BasketCompareResponse(BaseModel):
+    """Response for basket comparison."""
+    basket_totals: list[BasketStoreTotal]
+    best_store: str | None = None
+    best_total: str | None = None
+    best_total_numeric: int | None = None
+    savings_vs_worst: str | None = None  # "Save $6.30"
+    savings_numeric: int | None = None  # Savings in cents
+
+
 # Update forward references
 PriceComparison.model_rebuild()
 BrandPriceInfo.model_rebuild()
 CategoryComparison.model_rebuild()
+StapleProduct.model_rebuild()
+BasketCompareResponse.model_rebuild()

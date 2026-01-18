@@ -72,11 +72,11 @@ SUBCATEGORY_KEYWORDS = {
     "beef-veal": {
         "keywords": ["beef", "veal", "steak", "rump", "scotch fillet", "porterhouse", "t-bone", "sirloin", "eye fillet", "brisket", "silverside", "corned beef", "beef roast", "beef strips"],
         "patterns": [r"beef\s+", r"veal\s+", r"angus", r"\bkg\b.*beef"],
-        "exclude": ["beef flavour", "beef flavor", "beef stock", "beef broth", "beef noodle", "beef jerky", "twisties", "shapes", "chips", "crackers", "biscuit", "cup noodle", "instant noodle", "soup mix"],
+        "exclude": ["beef flavour", "beef flavor", "beef stock", "beef broth", "beef noodle", "beef jerky", "twisties", "shapes", "chips", "crackers", "biscuit", "cup noodle", "instant noodle", "soup mix", "crumpet", "reveal"],
     },
     "chicken": {
-        "keywords": ["chicken breast", "chicken thigh", "chicken wing", "chicken drumstick", "chicken maryland", "chicken tenderloin", "chicken fillet", "chicken schnitzel", "whole chicken", "chicken pieces"],
-        "patterns": [r"chicken\s+(breast|thigh|wing|drum|maryland|tender|fillet|schnitzel)", r"chook", r"\bkg\b.*chicken"],
+        "keywords": ["chicken breast", "chicken thigh", "chicken wing", "chicken drumstick", "chicken maryland", "chicken tenderloin", "chicken fillet", "chicken schnitzel", "whole chicken", "chicken pieces", "fresh chicken", "rspca approved chicken", "marinated chicken", "chicken roasting", "chicken bites", "chicken kebabs", "chicken sandwich schnitzel", "boneless kyiv", "chicken fingers crumbed"],
+        "patterns": [r"chicken\s+(breast|thigh|wing|drum|maryland|tender|fillet|schnitzel|kebab|bites|kyiv)", r"chook", r"\bkg\b.*chicken", r"(whole|fresh)\s+(plain\s+)?chicken", r"rspca\s+approved\s+chicken", r"marinated.*chicken", r"steggles\s+chicken"],
         "exclude": ["chicken salt", "chicken flavour", "chicken flavor", "chicken stock", "chicken noodle", "chicken soup", "chicken cup", "chicken twisties", "chicken chips", "chicken crackers", "chicken crispy", "chicken seasoning", "rotisserie", "bbq chicken"],
     },
     "pork": {
@@ -85,15 +85,15 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["pork crackling", "pork rind", "pork flavour", "pork flavor", "pork scratchings", "chips", "snack"],
     },
     "lamb": {
-        "keywords": ["lamb chop", "lamb cutlet", "lamb leg", "lamb roast", "lamb shank", "lamb shoulder", "lamb rack", "lamb mince", "lamb loin", "lamb backstrap"],
-        "patterns": [r"lamb\s+(chop|cutlet|leg|roast|shank|shoulder|rack|mince|loin|backstrap)", r"\bkg\b.*lamb"],
+        "keywords": ["lamb chop", "lamb cutlet", "lamb leg", "lamb roast", "lamb shank", "lamb shoulder", "lamb rack", "lamb mince", "lamb loin", "lamb backstrap", "forequarter chops", "whole leg roast", "half leg roast"],
+        "patterns": [r"lamb\s+(chop|cutlet|leg|roast|shank|shoulder|rack|mince|loin|backstrap|forequarter)", r"\bkg\b.*lamb", r"australian\s+lamb"],
         "exclude": ["lamb flavour", "lamb flavor", "lamb stock", "lamb broth"],
     },
     "seafood": {
         "keywords": ["salmon fillet", "salmon portions", "tuna steak", "prawns", "king prawns", "tiger prawns", "shrimp", "barramundi", "snapper", "cod fillet", "hoki",
                     "flathead", "calamari", "squid", "octopus", "mussels", "oyster", "crab", "lobster", "scallop", "basa", "dory", "perch", "trout",
-                    "whiting", "blue whiting", "ocean royale"],
-        "patterns": [r"seafood", r"fish\s+fillet", r"(salmon|tuna|prawn|barramundi|snapper|whiting)\s+\d+g", r"fresh\s+(salmon|tuna|prawns|fish)", r"fillets?\s+\d+"],
+                    "whiting", "blue whiting", "ocean royale", "smoked salmon", "hot smoked salmon", "raw prawn meat", "just caught"],
+        "patterns": [r"seafood", r"fish\s+fillet", r"(salmon|tuna|prawn|barramundi|snapper|whiting)\s+\d+g", r"fresh\s+(salmon|tuna|prawns|fish)", r"fillets?\s+\d+", r"(tassal|superior gold|huon).*salmon"],
         "exclude": ["fish oil", "fish sauce", "fish fingers", "fish crackers", "fish shaped", "goldfish", "fish stock", "tuna can", "canned tuna", "tinned"],
     },
     "mince-burgers": {
@@ -102,8 +102,8 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["burger rings", "burger sauce", "burger seasoning", "burger buns", "burger cheese", "mince pie", "fruit mince"],
     },
     "sausages-bbq": {
-        "keywords": ["sausage", "snag", "banger", "bratwurst", "kransky", "frankfurter", "wiener", "weiner", "cabanossi", "chipolata"],
-        "patterns": [r"sausage", r"beef\s+sausage", r"pork\s+sausage", r"bbq\s+meat", r"bbq\s+pack"],
+        "keywords": ["sausage", "snag", "banger", "bratwurst", "kransky", "frankfurter", "wiener", "weiner", "cabanossi", "chipolata", "skinless hot dogs", "hot dogs"],
+        "patterns": [r"sausage", r"beef\s+sausage", r"pork\s+sausage", r"bbq\s+meat", r"bbq\s+pack", r"berg\s+skinless\s+hot"],
         "exclude": ["shapes", "chips", "pringles", "sauce", "rolls", "buns", "bread", "flavour", "flavor", "seasoning", "marinade", "rub", "cracker", "biscuit", "crisp", "snack", "ring", "twisties", "franklin", "water", "sparkling"],
     },
     "turkey-duck": {
@@ -113,8 +113,8 @@ SUBCATEGORY_KEYWORDS = {
 
     # Dairy subcategories
     "milk": {
-        "keywords": ["full cream milk", "skim milk", "lite milk", "lactose free milk", "almond milk", "oat milk", "soy milk", "fresh milk", "long life milk", "uht milk", "a2 milk", "jersey milk"],
-        "patterns": [r"\d+\s*l(itre)?.*milk", r"milk\s+\d+\s*l", r"(pauls|pura|dairy farmers|devondale|so good).*milk"],
+        "keywords": ["full cream milk", "skim milk", "lite milk", "lactose free milk", "almond milk", "oat milk", "soy milk", "fresh milk", "long life milk", "uht milk", "a2 milk", "jersey milk", "protein smoothie", "rokeby protein smoothie"],
+        "patterns": [r"\d+\s*l(itre)?.*milk", r"milk\s+\d+\s*l", r"(pauls|pura|dairy farmers|devondale|so good).*milk", r"rokeby\s+protein\s+smoothie"],
         "exclude": ["milk chocolate", "milky bar", "milky way", "milk bottle", "milk biscuit", "condensed milk", "evaporated milk", "coconut milk", "milk powder"],
     },
     "cheese": {
@@ -133,8 +133,8 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["egg noodles", "easter egg", "scotch egg", "egg custard", "egg tart", "chocolate egg", "egg wash", "egg replacer"],
     },
     "butter-cream": {
-        "keywords": ["salted butter", "unsalted butter", "spreadable butter", "margarine", "thickened cream", "pure cream", "sour cream", "cooking cream", "double cream", "light cream"],
-        "patterns": [r"butter\s+\d+g", r"cream\s+\d+ml", r"(devondale|mainland|western star|flora|nuttelex).*butter"],
+        "keywords": ["salted butter", "unsalted butter", "spreadable butter", "margarine", "thickened cream", "pure cream", "sour cream", "cooking cream", "double cream", "light cream", "flora proactiv"],
+        "patterns": [r"butter\s+\d+g", r"cream\s+\d+ml", r"(devondale|mainland|western star|flora|nuttelex).*butter", r"flora\s+proactiv"],
         "exclude": ["ice cream", "cream biscuit", "cream cheese", "butter chicken", "peanut butter", "body butter", "cocoa butter", "shea butter", "cream puff", "cream filling", "cookies & cream", "cookies and cream"],
     },
 
@@ -150,13 +150,13 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["coconut water", "rose water", "rice water", "micellar water", "tonic water", "soda water"],
     },
     "juice": {
-        "keywords": ["orange juice", "apple juice", "fruit juice", "vegetable juice", "tomato juice", "cranberry juice", "grape juice", "pineapple juice", "mango juice", "nudie", "daily juice", "berri"],
-        "patterns": [r"juice\s+\d+\s*(ml|l)", r"\d+\s*(ml|l).*juice", r"(nudie|berri|golden circle).*juice"],
+        "keywords": ["orange juice", "apple juice", "fruit juice", "vegetable juice", "tomato juice", "cranberry juice", "grape juice", "pineapple juice", "mango juice", "nudie", "daily juice", "berri", "fruit drink"],
+        "patterns": [r"juice\s+\d+\s*(ml|l)", r"\d+\s*(ml|l).*juice", r"(nudie|berri|golden circle).*juice", r"golden\s+circle\s+fruit\s+drink"],
         "exclude": ["juice bar", "vape juice", "e-juice"],
     },
     "coffee-tea": {
-        "keywords": ["instant coffee", "ground coffee", "coffee beans", "coffee capsules", "coffee pods", "tea bags", "green tea", "herbal tea", "black tea", "nescafe", "moccona", "lavazza", "vittoria", "twinings", "lipton", "t2"],
-        "patterns": [r"coffee\s+\d+g", r"tea\s+\d+\s*(bag|pk)", r"(nescafe|moccona|lavazza|vittoria)"],
+        "keywords": ["instant coffee", "ground coffee", "coffee beans", "coffee capsules", "coffee pods", "tea bags", "green tea", "herbal tea", "black tea", "nescafe", "moccona", "lavazza", "vittoria", "twinings", "lipton", "t2", "milo"],
+        "patterns": [r"coffee\s+\d+g", r"tea\s+\d+\s*(bag|pk)", r"(nescafe|moccona|lavazza|vittoria)", r"milo\s+\d+(g|kg)"],
         "exclude": ["coffee table", "coffee mug", "coffee cup", "iced coffee", "coffee milk"],
     },
     "energy-drinks": {
@@ -181,9 +181,11 @@ SUBCATEGORY_KEYWORDS = {
             "canned tomatoes", "diced tomatoes", "crushed tomatoes",
             "canned tuna", "canned salmon", "baked beans",
             "canned corn", "canned beetroot", "chickpeas", "kidney beans",
-            "black beans", "lentils", "spc", "edgell", "heinz beans",
+            "black beans", "lentils", "spc", "edgell", "heinz beans", "heinz beanz",
             # Canned tuna/seafood brands - these are ALWAYS canned products
             "john west", "sirena", "safcol", "greenseas",
+            # Canned fruit
+            "golden circle pineapple",
         ],
         "patterns": [
             r"(john west|sirena|safcol|greenseas)\s+\w+",  # Tuna brands
@@ -191,18 +193,23 @@ SUBCATEGORY_KEYWORDS = {
             r"\d+g\s*(can|tin)",
             r"(spc|edgell|annalisa).*\d+g",
             r"tuna\s+(in|with)\s+",  # "Tuna in tomato", "Tuna with corn"
+            r"heinz\s+beanz",
+            r"golden\s+circle\s+pineapple",
         ],
         "exclude": ["can opener", "garbage can", "tuna steak", "fresh tuna", "sashimi"],
     },
     "sauces-condiments": {
         "keywords": ["tomato sauce", "bbq sauce", "barbecue sauce", "soy sauce", "worcestershire",
                      "ketchup", "mustard", "relish", "aioli", "hot sauce", "chilli sauce",
-                     "sweet chilli sauce", "sriracha", "tabasco", "masterfoods sauce", "fountain sauce"],
+                     "sweet chilli sauce", "sriracha", "tabasco", "masterfoods sauce", "fountain sauce",
+                     "masterfoods marinade", "praise dressing", "corn relish"],
         "patterns": [
             r"(tomato|bbq|soy|worcester|chilli|hot|sweet chilli|teriyaki|oyster)\s+sauce\s+\d+",
             r"(heinz|masterfoods|fountain|rosella).*sauce\s+\d+",
             r"ketchup\s+\d+",
             r"mayonnaise\s+\d+",
+            r"masterfoods\s+marinade",
+            r"praise\s+dressing",
         ],
         "exclude": [
             # Seafood products with sauce descriptors
@@ -225,8 +232,8 @@ SUBCATEGORY_KEYWORDS = {
 
     # Snacks subcategories
     "chips-crisps": {
-        "keywords": ["potato chips", "corn chips", "tortilla chips", "smiths chips", "thins", "pringles", "doritos", "kettle chips", "red rock deli", "twisties", "cheezels", "burger rings", "cheetos", "grain waves", "cc's", "samboy", "vege chips"],
-        "patterns": [r"chips\s+\d+g", r"crisps\s+\d+g", r"(smiths|kettle|doritos|pringles|red rock|twisties|cheezels)"],
+        "keywords": ["potato chips", "corn chips", "tortilla chips", "smiths chips", "thins", "pringles", "doritos", "kettle chips", "red rock deli", "twisties", "cheezels", "burger rings", "cheetos", "grain waves", "cc's", "samboy", "vege chips", "harvest snaps"],
+        "patterns": [r"chips\s+\d+g", r"crisps\s+\d+g", r"(smiths|kettle|doritos|pringles|red rock|twisties|cheezels)", r"(calbee|harvest)\s+snaps"],
         "exclude": ["fish and chips", "fish & chips", "frozen chips", "oven chips", "hot chips"],
     },
     "chocolate": {
@@ -235,39 +242,39 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["chocolate milk", "hot chocolate", "chocolate spread", "chocolate sauce", "chocolate chip", "chocolate flavour", "chocolate flavor"],
     },
     "biscuits": {
-        "keywords": ["tim tam", "oreo", "arnott's", "arnotts", "shapes", "scotch finger", "monte carlo", "shortbread", "anzac biscuit", "digestive", "nice biscuit", "cream biscuit", "chocolate biscuit", "teddy bear biscuit", "tiny teddy", "iced vovo", "kingston", "delta cream"],
-        "patterns": [r"biscuit\s+\d+g", r"cookies?\s+\d+g", r"(arnott|tim tam|oreo|shapes)"],
+        "keywords": ["tim tam", "oreo", "arnott's", "arnotts", "shapes", "scotch finger", "monte carlo", "shortbread", "anzac biscuit", "digestive", "nice biscuit", "cream biscuit", "chocolate biscuit", "teddy bear biscuit", "tiny teddy", "iced vovo", "kingston", "delta cream", "ginger kisses", "jon jon"],
+        "patterns": [r"biscuit\s+\d+g", r"cookies?\s+\d+g", r"(arnott|tim tam|oreo|shapes)", r"jon\s+jon\s+ginger"],
         "exclude": ["dog biscuit", "cat biscuit", "pet biscuit"],
     },
     "lollies": {
-        "keywords": ["lollies", "candy", "gummy bears", "gummy worms", "jelly beans", "licorice", "allsorts", "snakes", "party mix", "sour worms", "sour straps", "mentos", "skittles", "starburst", "lifesavers", "tic tac", "minties", "fantales", "redskins", "milkos"],
-        "patterns": [r"lollies\s+\d+g", r"candy\s+\d+g", r"(haribo|allen|darrell lea)"],
+        "keywords": ["lollies", "candy", "gummy bears", "gummy worms", "jelly beans", "licorice", "allsorts", "snakes", "party mix", "sour worms", "sour straps", "mentos", "skittles", "starburst", "lifesavers", "life savers", "tic tac", "minties", "fantales", "redskins", "milkos", "funday gummies"],
+        "patterns": [r"lollies\s+\d+g", r"candy\s+\d+g", r"(haribo|allen|darrell lea)", r"life\s+savers\s+share"],
         "exclude": ["lollipop stick", "lolly bag"],
     },
     "nuts-snacks": {
-        "keywords": ["roasted peanuts", "salted peanuts", "almonds", "cashews", "macadamia nuts", "walnuts", "pistachios", "mixed nuts", "trail mix", "beer nuts", "honey roasted peanuts", "salted cashews"],
-        "patterns": [r"nuts\s+\d+g", r"(roasted|salted|honey)\s+(peanuts|almonds|cashews|macadamia)", r"(cobram|forresters).*nuts"],
+        "keywords": ["roasted peanuts", "salted peanuts", "almonds", "cashews", "macadamia nuts", "walnuts", "pistachios", "mixed nuts", "trail mix", "beer nuts", "honey roasted peanuts", "salted cashews", "beef jerky", "jerky", "protein balls", "smooshed protein balls", "health lab balls"],
+        "patterns": [r"nuts\s+\d+g", r"(roasted|salted|honey)\s+(peanuts|almonds|cashews|macadamia)", r"(cobram|forresters).*nuts", r"jack\s+link['']?s?\s+jerky", r"(tasti|health\s+lab).*balls"],
         "exclude": ["coconut", "doughnut", "donut", "hazelnut spread", "nutella"],
     },
 
     # Freezer subcategories
     "ice-cream-frozen-desserts": {
-        "keywords": ["ice cream", "gelato", "sorbet", "frozen yogurt", "magnum", "cornetto", "paddle pop", "streets", "peters", "connoisseur", "ben & jerry", "haagen dazs", "bulla", "weis bar", "zooper dooper", "calippo", "gaytime"],
-        "patterns": [r"ice\s*cream\s+\d+", r"(streets|peters|bulla|connoisseur).*\d+"],
+        "keywords": ["ice cream", "gelato", "sorbet", "frozen yogurt", "magnum", "cornetto", "paddle pop", "streets", "peters", "connoisseur", "ben & jerry", "haagen dazs", "bulla", "weis bar", "zooper dooper", "calippo", "gaytime", "mixed pack pops", "icy poles", "ice pops"],
+        "patterns": [r"ice\s*cream\s+\d+", r"(streets|peters|bulla|connoisseur).*\d+", r"(mixed\s+)?pack\s+pops"],
         "exclude": ["ice cream cone", "ice cream scoop", "ice cream maker"],
     },
     "frozen-meals": {
-        "keywords": ["frozen meal", "ready meal", "tv dinner", "lean cuisine", "healthy choice", "weight watchers meal", "on the menu", "youfoodz"],
-        "patterns": [r"frozen\s+meal", r"ready\s+meal", r"(lean cuisine|healthy choice|on the menu)"],
+        "keywords": ["frozen meal", "ready meal", "tv dinner", "lean cuisine", "healthy choice", "weight watchers meal", "on the menu", "youfoodz", "airfry guy meals", "nombox meal", "strength meals", "mccain pub size meal", "mccain pickers", "fropro protein pie"],
+        "patterns": [r"frozen\s+meal", r"ready\s+meal", r"(lean cuisine|healthy choice|on the menu)", r"(airfry guy|nombox|strength meals)\s+", r"mccain\s+(pub size|pickers)"],
         "exclude": ["meal kit", "meal prep container"],
     },
     "frozen-vegetables": {
-        "keywords": ["frozen peas", "frozen corn", "frozen vegetables", "frozen beans", "frozen spinach", "frozen broccoli", "frozen stir fry vegetables", "frozen mixed vegetables", "birds eye vegetables", "mccain vegetables"],
-        "patterns": [r"frozen\s+(pea|corn|veg|bean|spinach|broccoli|carrot)", r"(birds eye|mccain).*vegetables"],
+        "keywords": ["frozen peas", "frozen corn", "frozen vegetables", "frozen beans", "frozen spinach", "frozen broccoli", "frozen stir fry vegetables", "frozen mixed vegetables", "birds eye vegetables", "mccain vegetables", "peas corn carrots", "corn kernels"],
+        "patterns": [r"frozen\s+(pea|corn|veg|bean|spinach|broccoli|carrot)", r"(birds eye|mccain).*vegetables", r"new\s+season\s+(peas|corn|veg|mixed)", r"corn\s+kernels\s+\d+g"],
     },
     "frozen-chips-wedges": {
-        "keywords": ["frozen chips", "oven chips", "potato wedges", "hash browns", "potato gems", "frozen crinkle cut", "frozen straight cut", "steakhouse chips", "mccain chips", "birds eye chips"],
-        "patterns": [r"frozen\s+chips?", r"oven\s+chips?", r"(mccain|birds eye).*chips", r"hash\s*brown"],
+        "keywords": ["frozen chips", "oven chips", "potato wedges", "hash browns", "potato gems", "frozen crinkle cut", "frozen straight cut", "steakhouse chips", "mccain chips", "birds eye chips", "pub style fries", "pub style wedges", "super fries"],
+        "patterns": [r"frozen\s+chips?", r"oven\s+chips?", r"(mccain|birds eye).*chips", r"hash\s*brown", r"mccain\s+pub\s+(style|size)", r"mccain\s+super\s+fries"],
         "exclude": ["fish and chips meal", "cheese & onion", "cheese and onion", "sour cream", "salt & vinegar", "chicken", "bbq", "smiths", "thins", "pringles", "sprinters"],
     },
 
@@ -285,14 +292,14 @@ SUBCATEGORY_KEYWORDS = {
         "patterns": [r"cleaner\s+", r"spray\s+\d+"],
     },
     "paper-products": {
-        "keywords": ["toilet paper", "paper towel", "tissues", "kleenex", "sorbent", "quilton"],
-        "patterns": [r"toilet\s+paper", r"paper\s+towel"],
+        "keywords": ["toilet paper", "toilet tissue", "paper towel", "tissues", "kleenex", "sorbent", "quilton", "confidence toilet"],
+        "patterns": [r"toilet\s+(paper|tissue)", r"paper\s+towel", r"confidence\s+toilet"],
     },
 
     # Personal care subcategories
     "hair-care": {
-        "keywords": ["shampoo", "conditioner", "hair treatment", "hair mask", "hair gel", "hair spray", "head & shoulders", "pantene", "tresemme"],
-        "patterns": [r"shampoo", r"conditioner"],
+        "keywords": ["shampoo", "conditioner", "hair treatment", "hair mask", "hair gel", "hair spray", "head & shoulders", "pantene", "tresemme", "hair colour", "hair colourant", "excellence colourant"],
+        "patterns": [r"shampoo", r"conditioner", r"(l'oreal|loreal)\s+excellence\s+colour"],
     },
     "body-wash-soap": {
         "keywords": ["body wash", "soap", "shower gel", "bath", "dove", "palmolive"],
@@ -313,18 +320,18 @@ SUBCATEGORY_KEYWORDS = {
 
     # Fruit & Veg subcategories
     "fresh-fruit": {
-        "keywords": ["fresh apple", "fresh banana", "fresh orange", "fresh mandarin", "fresh grapes", "fresh strawberries", "fresh blueberries", "fresh raspberries", "fresh mango", "fresh pineapple", "watermelon", "rockmelon", "honeydew", "fresh pear", "fresh peach", "nectarine", "fresh plum", "fresh kiwi", "fresh avocado", "passionfruit", "papaya", "pink lady apple", "granny smith", "royal gala"],
-        "patterns": [r"fresh\s+(apple|banana|orange|grape|strawberr|mango|pear)", r"australian\s+(mango|peach|grape|apple)", r"(gala|fuji|pink lady)\s+apple"],
+        "keywords": ["fresh apple", "fresh banana", "fresh orange", "fresh mandarin", "fresh grapes", "fresh strawberries", "fresh blueberries", "fresh raspberries", "fresh mango", "fresh pineapple", "watermelon", "rockmelon", "honeydew", "fresh pear", "fresh peach", "nectarine", "fresh plum", "fresh kiwi", "fresh avocado", "passionfruit", "papaya", "pink lady apple", "granny smith", "royal gala", "seedless grapes", "black plums", "red plums", "white peaches", "yellow peaches", "cherries"],
+        "patterns": [r"fresh\s+(apple|banana|orange|grape|strawberr|mango|pear)", r"australian\s+(mango|peach|grape|apple|plum|cherries|nectarine)", r"(gala|fuji|pink lady)\s+apple", r"(black|red|white|yellow)\s+(plum|peach|nectarine)", r"australian\s+(black|red|white)\s+seedless"],
         "exclude": ["apple juice", "banana bread", "orange juice", "dried fruit", "fruit bar", "fruit snack", "juice", "pulp", "cordial", "ham", "spiced", "canned", "labeller", "blue ", "dymo"],
     },
     "fresh-vegetables": {
-        "keywords": ["fresh broccoli", "fresh carrot", "fresh potato", "fresh onion", "fresh tomato", "fresh lettuce", "fresh spinach", "fresh kale", "fresh cabbage", "fresh cauliflower", "fresh capsicum", "fresh cucumber", "fresh zucchini", "fresh eggplant", "fresh mushroom", "fresh celery", "fresh asparagus", "fresh beetroot", "fresh pumpkin", "sweet potato", "loose carrots", "loose potatoes", "loose onions"],
-        "patterns": [r"fresh\s+(broccoli|carrot|potato|onion|tomato|lettuce)", r"baby\s+(spinach|carrots|corn)", r"bunch\s+(celery|asparagus)", r"(woolworths|coles)\s+(carrot|potato|onion|tomato)"],
-        "exclude": ["frozen", "canned", "tinned", "chips", "sauce", "popcorn", "corn chips", "sweet corn"],
+        "keywords": ["fresh broccoli", "fresh carrot", "fresh potato", "fresh onion", "fresh tomato", "fresh lettuce", "fresh spinach", "fresh kale", "fresh cabbage", "fresh cauliflower", "fresh capsicum", "fresh cucumber", "fresh zucchini", "fresh eggplant", "fresh mushroom", "fresh celery", "fresh asparagus", "fresh beetroot", "fresh pumpkin", "sweet potato", "loose carrots", "loose potatoes", "loose onions", "oak lettuce", "corn cobbettes", "mashing potatoes", "roasting potatoes", "chipping potatoes", "low carb potatoes"],
+        "patterns": [r"fresh\s+(broccoli|carrot|potato|onion|tomato|lettuce)", r"baby\s+(spinach|carrots|corn)", r"bunch\s+(celery|asparagus)", r"(woolworths|coles)\s+(carrot|potato|onion|tomato)", r"australian\s+(mushroom|corn|lettuce|potato)", r"(loose|sweet)\s+corn", r"potatoes\s+\d+kg\s+bag"],
+        "exclude": ["frozen", "canned", "tinned", "chips", "sauce", "popcorn", "corn chips"],
     },
     "salad": {
-        "keywords": ["salad mix", "salad bag", "coleslaw mix", "salad kit", "caesar salad", "garden salad", "rocket salad", "baby spinach salad", "mixed leaves"],
-        "patterns": [r"salad\s+(mix|bag|kit|bowl)", r"mixed\s+leaves"],
+        "keywords": ["salad mix", "salad bag", "coleslaw mix", "salad kit", "caesar salad", "garden salad", "rocket salad", "baby spinach salad", "mixed leaves", "gourmet leaf mix", "slaw kit", "coleslaw kit", "kale slaw kit", "noodle coleslaw", "cranberry kale slaw", "american style slaw", "japanese style slaw", "four seasons coleslaw", "mixed leaf with carrot", "australian mixed leaf"],
+        "patterns": [r"salad\s+(mix|bag|kit|bowl)", r"mixed\s+leaves", r"(coleslaw|slaw)\s+kit", r"woolworths\s+(classic|crunchy|american|japanese|kale|cranberry).*slaw", r"mixed\s+leaf\s+salad", r"(australian\s+)?mixed\s+leaf\s+(with|&)\s+carrot"],
         "exclude": ["salad dressing", "pasta salad", "potato salad"],
     },
     "prepared-vegetables": {
@@ -343,8 +350,9 @@ SUBCATEGORY_KEYWORDS = {
 
     # Deli subcategories
     "cold-cuts-salami": {
-        "keywords": ["sliced ham", "leg ham", "salami", "prosciutto", "pastrami", "mortadella", "pepperoni", "chorizo slices", "ham off the bone", "smoked salmon slices"],
-        "patterns": [r"sliced\s+(ham|salami|turkey|chicken)", r"(don|primo|hans).*sliced"],
+        "keywords": ["sliced ham", "leg ham", "salami", "prosciutto", "pastrami", "mortadella", "pepperoni", "chorizo slices", "ham off the bone", "smoked salmon slices",
+                     "shaved ham", "short cut bacon", "middle bacon", "streaky bacon", "rindless bacon", "pan size bacon", "diced bacon", "double smoked ham", "english ham", "protein stackers"],
+        "patterns": [r"sliced\s+(ham|salami|turkey|chicken)", r"(don|primo|hans|berg|d'orsogna).*sliced", r"berg\s+(leg|middle|short|streaky|triple)", r"primo\s+(bacon|ham|double|english|high)", r"d'orsogna\s+ham"],
     },
     "deli-cheese": {
         "keywords": ["deli brie", "deli camembert", "deli blue cheese", "deli gouda", "deli gruyere", "specialty cheese", "cheese wheel"],
@@ -355,8 +363,8 @@ SUBCATEGORY_KEYWORDS = {
         "patterns": [r"(kalamata|green|stuffed|marinated)\s+olives", r"antipasto"],
     },
     "dips-spreads": {
-        "keywords": ["hummus", "tzatziki", "guacamole", "beetroot dip", "french onion dip", "spinach dip", "basil pesto", "tapenade", "baba ganoush"],
-        "patterns": [r"(hummus|tzatziki|guacamole|pesto)\s*\d*g", r"(beetroot|french onion|spinach)\s+dip"],
+        "keywords": ["hummus", "tzatziki", "guacamole", "beetroot dip", "french onion dip", "french onion", "spinach dip", "basil pesto", "tapenade", "baba ganoush", "hommus", "homestyle dips", "traditional french onion"],
+        "patterns": [r"(hummus|hommus|tzatziki|guacamole|pesto)\s*\d*g", r"(beetroot|french onion|spinach)\s+dip", r"chris['']?\s+dips?", r"yumi['']?s?\s+(hommus|mini)", r"chris['']?\s+traditional\s+french\s+onion"],
         "exclude": ["chip dip", "sauce"],
     },
     "cooked-meats": {
@@ -372,8 +380,8 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["custard powder", "custard tart"],
     },
     "chilled-desserts": {
-        "keywords": ["cheesecake", "mousse", "tiramisu", "panna cotta", "creme brulee", "chilled dessert", "chocolate mousse", "mango mousse"],
-        "patterns": [r"(cheesecake|mousse|tiramisu|panna cotta)\s*\d*g"],
+        "keywords": ["cheesecake", "mousse", "tiramisu", "panna cotta", "creme brulee", "chilled dessert", "chocolate mousse", "mango mousse", "protein dessert", "gym bod protein", "pauls plus protein"],
+        "patterns": [r"(cheesecake|mousse|tiramisu|panna cotta)\s*\d*g", r"(gym\s*bod|pauls\s*plus\+?)\s*protein\s*dessert"],
         "exclude": ["cheesecake mix", "mousse powder"],
     },
 
@@ -389,16 +397,16 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["sausage roll", "spring roll"],
     },
     "cakes-tarts": {
-        "keywords": ["chocolate cake", "sponge cake", "mud cake", "cheesecake", "carrot cake", "fruit cake", "apple tart", "custard tart", "lemon tart", "fruit tart"],
-        "patterns": [r"(chocolate|sponge|mud|carrot|fruit)\s+cake", r"(apple|custard|lemon|fruit)\s+tart"],
+        "keywords": ["chocolate cake", "sponge cake", "mud cake", "cheesecake", "carrot cake", "fruit cake", "apple tart", "custard tart", "lemon tart", "fruit tart", "lamingtons", "lamington fingers", "pavlova", "pavlova base", "angel slices", "fancies", "bakewells", "mr kipling slices"],
+        "patterns": [r"(chocolate|sponge|mud|carrot|fruit)\s+cake", r"(apple|custard|lemon|fruit)\s+tart", r"(baker.*oven|woolworths)\s+lamington", r"mr\s+kipling", r"(large\s+)?pavlova"],
     },
     "pastries-croissants": {
-        "keywords": ["croissant", "danish pastry", "pain au chocolat", "almond croissant", "butter croissant", "apple turnover", "custard danish", "cinnamon scroll"],
-        "patterns": [r"croissant\s*\d*", r"danish\s+pastry", r"(pain au chocolat|turnover|scroll)"],
+        "keywords": ["croissant", "danish pastry", "pain au chocolat", "almond croissant", "butter croissant", "apple turnover", "custard danish", "cinnamon scroll", "golden pancakes"],
+        "patterns": [r"croissant\s*\d*", r"danish\s+pastry", r"(pain au chocolat|turnover|scroll)", r"golden\s+pancakes?"],
     },
     "muffins-donuts": {
-        "keywords": ["chocolate muffin", "blueberry muffin", "banana muffin", "bran muffin", "donut", "doughnut", "cinnamon donut", "glazed donut", "jam donut"],
-        "patterns": [r"(chocolate|blueberry|banana|bran)\s+muffin", r"(cinnamon|glazed|jam)\s+donut"],
+        "keywords": ["chocolate muffin", "blueberry muffin", "banana muffin", "bran muffin", "donut", "doughnut", "cinnamon donut", "glazed donut", "jam donut", "mini muffins", "loaded muffins", "lemon poppyseed muffins", "choc chip muffins", "raspberry white choc muffins"],
+        "patterns": [r"(chocolate|blueberry|banana|bran|lemon|raspberry)\s+muffin", r"(cinnamon|glazed|jam)\s+donut", r"muffins\s+\d+\s*pack", r"(choc chip|mini|loaded)\s+muffins"],
     },
     "gluten-free-bakery": {
         "keywords": ["gluten free bread", "gluten free wraps", "gluten free muffin", "gluten free cake", "gluten free rolls"],
@@ -412,17 +420,17 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["oil spray", "fish oil"],
     },
     "spreads-honey": {
-        "keywords": ["honey", "manuka honey", "jam", "strawberry jam", "apricot jam", "peanut butter", "vegemite", "nutella", "hazelnut spread", "marmalade", "lemon curd", "maple syrup", "golden syrup", "treacle"],
-        "patterns": [r"(strawberry|apricot|raspberry)\s+jam", r"(peanut|almond|cashew)\s+butter", r"honey\s+\d+g", r"maple\s+syrup"],
+        "keywords": ["honey", "manuka honey", "jam", "strawberry jam", "apricot jam", "peanut butter", "vegemite", "nutella", "hazelnut spread", "marmalade", "lemon curd", "maple syrup", "golden syrup", "treacle", "bonne maman conserve"],
+        "patterns": [r"(strawberry|apricot|raspberry)\s+jam", r"(peanut|almond|cashew)\s+butter", r"honey\s+\d+g", r"maple\s+syrup", r"bonne\s+maman\s+conserve"],
         "exclude": ["honey chicken", "honey soy"],
     },
     "baking-supplies": {
-        "keywords": ["flour", "plain flour", "self raising flour", "sugar", "caster sugar", "brown sugar", "icing sugar", "baking powder", "baking soda", "bicarbonate", "yeast", "vanilla essence", "chocolate chips", "cocoa powder"],
-        "patterns": [r"(plain|self raising|bread)\s+flour", r"(caster|brown|icing)\s+sugar", r"baking\s+(powder|soda)"],
+        "keywords": ["flour", "plain flour", "self raising flour", "sugar", "caster sugar", "brown sugar", "icing sugar", "baking powder", "baking soda", "bicarbonate", "yeast", "vanilla essence", "chocolate chips", "cocoa powder", "pancake mix", "pikelet mix", "waffle mix"],
+        "patterns": [r"(plain|self raising|bread)\s+flour", r"(caster|brown|icing)\s+sugar", r"baking\s+(powder|soda)", r"green['']?s\s+pancake\s+mix"],
     },
     "herbs-spices": {
-        "keywords": ["dried basil", "dried oregano", "dried thyme", "paprika", "cumin", "turmeric", "cinnamon", "nutmeg", "black pepper", "sea salt", "garlic powder", "onion powder", "mixed herbs", "italian herbs"],
-        "patterns": [r"(paprika|cumin|turmeric|cinnamon|nutmeg)\s*\d*g", r"(garlic|onion)\s+powder"],
+        "keywords": ["dried basil", "dried oregano", "dried thyme", "paprika", "cumin", "turmeric", "cinnamon", "nutmeg", "black pepper", "sea salt", "garlic powder", "onion powder", "mixed herbs", "italian herbs", "chilli flakes"],
+        "patterns": [r"(paprika|cumin|turmeric|cinnamon|nutmeg)\s*\d*g", r"(garlic|onion)\s+powder", r"chilli\s+flakes\s+\d+g"],
         "exclude": ["fresh herbs"],
     },
 
@@ -438,21 +446,21 @@ SUBCATEGORY_KEYWORDS = {
 
     # Freezer additional subcategories
     "frozen-seafood": {
-        "keywords": ["frozen prawns", "frozen fish", "frozen salmon", "frozen basa", "fish fingers", "crumbed fish", "frozen calamari", "frozen squid"],
-        "patterns": [r"frozen\s+(prawns|fish|salmon|basa|calamari)", r"fish\s+fingers"],
+        "keywords": ["frozen prawns", "frozen fish", "frozen salmon", "frozen basa", "fish fingers", "crumbed fish", "frozen calamari", "frozen squid", "air baked fish"],
+        "patterns": [r"frozen\s+(prawns|fish|salmon|basa|calamari)", r"fish\s+fingers", r"birds\s+eye\s+air\s+baked"],
     },
     "frozen-meat-poultry": {
         "keywords": ["frozen chicken", "frozen beef", "frozen mince", "frozen sausages", "frozen burgers", "chicken nuggets", "chicken tenders"],
         "patterns": [r"frozen\s+(chicken|beef|mince|sausage|burger)", r"chicken\s+(nuggets|tenders|strips)"],
     },
     "frozen-pizza": {
-        "keywords": ["frozen pizza", "mccain pizza", "dr oetker pizza", "pizza base", "pizza pocket"],
-        "patterns": [r"frozen\s+pizza", r"(mccain|dr oetker).*pizza"],
+        "keywords": ["frozen pizza", "mccain pizza", "dr oetker pizza", "pizza base", "pizza pocket", "papa giuseppi pizza", "protein pizza", "fropro pizza"],
+        "patterns": [r"frozen\s+pizza", r"(mccain|dr oetker|papa giuseppi|fropro).*pizza"],
         "exclude": ["pizza sauce", "pizza seasoning"],
     },
     "frozen-pastry": {
-        "keywords": ["sausage roll", "meat pie", "party pie", "beef pie", "chicken pie", "spring roll", "dim sim", "samosa", "puff pastry", "shortcrust pastry", "filo pastry"],
-        "patterns": [r"(sausage|meat|party|beef|chicken)\s+(roll|pie)", r"(spring roll|dim sim|samosa)\s*\d*"],
+        "keywords": ["sausage roll", "meat pie", "party pie", "beef pie", "chicken pie", "spring roll", "dim sim", "samosa", "puff pastry", "shortcrust pastry", "filo pastry", "bao buns", "chiko roll", "puff toastie"],
+        "patterns": [r"(sausage|meat|party|beef|chicken)\s+(roll|pie)", r"(spring roll|dim sim|samosa)\s*\d*", r"urban\s+eats\s+bao", r"chiko\s+(roll|original)", r"borg.*puff\s+toastie"],
     },
 
     # Snacks additional subcategories
@@ -471,16 +479,16 @@ SUBCATEGORY_KEYWORDS = {
         "patterns": [r"(soy|teriyaki|hoisin|oyster|fish)\s+sauce", r"(rice|wonton)\s+(paper|wrapper|noodle)", r"(miso|curry)\s+paste"],
     },
     "mexican-foods": {
-        "keywords": ["taco shells", "taco kit", "tortilla chips", "salsa", "guacamole", "refried beans", "burrito kit", "enchilada sauce", "nacho cheese", "jalapeno"],
-        "patterns": [r"(taco|burrito|enchilada)\s+(shell|kit|sauce)", r"tortilla\s+chips"],
+        "keywords": ["taco shells", "taco kit", "tortilla chips", "salsa", "guacamole", "refried beans", "burrito kit", "enchilada sauce", "nacho cheese", "jalapeno", "mini tacos", "mission street tacos"],
+        "patterns": [r"(taco|burrito|enchilada)\s+(shell|kit|sauce)", r"tortilla\s+chips", r"(mission\s+street|mini)\s+tacos?"],
     },
     "indian-foods": {
         "keywords": ["curry paste", "tikka masala", "butter chicken sauce", "korma", "vindaloo", "naan bread", "poppadoms", "mango chutney", "lime pickle", "basmati rice"],
         "patterns": [r"(tikka|butter chicken|korma|vindaloo|rogan josh)\s*(sauce|paste)?", r"(naan|poppadom|papadum)"],
     },
     "italian-foods": {
-        "keywords": ["pasta sauce", "bolognese sauce", "napolitana sauce", "pesto", "pizza sauce", "sun dried tomatoes", "balsamic vinegar", "risotto rice", "arborio rice", "parmesan"],
-        "patterns": [r"(bolognese|napolitana|arrabbiata|puttanesca)\s+sauce", r"(balsamic|red wine)\s+vinegar"],
+        "keywords": ["pasta sauce", "bolognese sauce", "napolitana sauce", "pesto", "pizza sauce", "sun dried tomatoes", "balsamic vinegar", "risotto rice", "arborio rice", "parmesan", "passata", "gourmet passata"],
+        "patterns": [r"(bolognese|napolitana|arrabbiata|puttanesca)\s+sauce", r"(balsamic|red wine)\s+vinegar", r"(leggo|mutti).*passata"],
     },
     "middle-eastern-foods": {
         "keywords": ["hummus", "tahini", "falafel", "za'atar", "dukkah", "harissa", "pomegranate molasses", "lebanese bread", "pita chips"],
@@ -569,8 +577,8 @@ SUBCATEGORY_KEYWORDS = {
 
     # Pet additional subcategories
     "dog-food": {
-        "keywords": ["dry dog food", "wet dog food", "dog biscuits", "pedigree", "optimum dog", "supercoat", "black hawk dog", "advance dog", "royal canin dog"],
-        "patterns": [r"(dry|wet)\s+dog\s+food", r"(pedigree|optimum|supercoat|advance|royal canin).*dog"],
+        "keywords": ["dry dog food", "wet dog food", "dog biscuits", "pedigree", "optimum dog", "supercoat", "black hawk dog", "advance dog", "royal canin dog", "purina dog chow"],
+        "patterns": [r"(dry|wet)\s+dog\s+food", r"(pedigree|optimum|supercoat|advance|royal canin|purina).*dog", r"dog\s+chow"],
     },
     "cat-food": {
         "keywords": ["dry cat food", "wet cat food", "cat biscuits", "whiskas", "dine cat", "fancy feast", "purina cat", "advance cat", "royal canin cat", "meow mix"],
@@ -578,8 +586,8 @@ SUBCATEGORY_KEYWORDS = {
         "exclude": ["sardine", "fish", "salmon", "tuna", "ocean"],
     },
     "pet-treats": {
-        "keywords": ["dog treats", "cat treats", "dog chews", "dental sticks", "schmackos", "pedigree dentastix", "greenies"],
-        "patterns": [r"(dog|cat)\s+(treat|chew|stick)", r"(schmackos|dentastix|greenies)"],
+        "keywords": ["dog treats", "cat treats", "dog chews", "dental sticks", "schmackos", "pedigree dentastix", "greenies", "my dog tender bites", "gourmet treats"],
+        "patterns": [r"(dog|cat)\s+(treat|chew|stick)", r"(schmackos|dentastix|greenies)", r"my\s+dog\s+(tender|gourmet)"],
     },
 }
 
@@ -850,13 +858,18 @@ CATEGORY_KEYWORDS = {
             "tempranillo", "rioja", "riesling", "moscato", "sangria",
             "jack daniel", "johnnie walker", "jim beam", "corona", "heineken",
             "carlton", "victoria bitter", "coopers", "xxxx gold",
-            "-196",  # Japanese RTD brand
+            "-196 double lemon",  # Japanese RTD brand (full name for better matching)
+            # Additional Australian beer/RTD brands
+            "great northern", "tooheys", "tooheys new", "tooheys extra dry",
+            "hahn superdry", "hahn super dry", "smirnoff ice", "hard rated",
         ],
         "patterns": [
             r"\bbeer\b", r"\bwine\b", r"\bgin\b", r"\bale\b", r"\brum\b",  # Word boundaries for short words
             r"\bcider\b", r"\bspirits?\b",
             r"\d+\s*ml.*alcohol", r"750\s*m(l|illilitre)",
             r"docg|vintage \d{4}",  # Wine designations
+            r"(great northern|tooheys|hahn|smirnoff)\s+\d+\s*pack",
+            r"^-196\s+",  # Japanese -196 RTD at start of product name
         ],
         "exclude": ["ginger", "original", "vingegar", "vinegar", "cinnamon", "cumberland", "goldenvale", "oats", "porridge", "rice", "chips", "crackers", "biscuit", "maple", "whiting", "fish", "fillet"],
     },
@@ -891,15 +904,19 @@ CATEGORY_KEYWORDS = {
             "vitamin", "supplement", "panadol", "nurofen", "aspirin",
             "cold", "flu", "allergy", "hayfever", "bandage", "band-aid",
             "first aid", "pain relief", "antacid", "probiotic", "fish oil",
-            "multivitamin", "protein powder", "collagen",
+            "multivitamin", "protein powder", "collagen", "creatine",
             "nature's way", "swisse", "blackmores", "cenovis", "ostelin",
             "vitagummie", "omega", "glucosamine", "magnesium", "zinc",
             "melatonin", "echinacea", "turmeric", "elderberry",
             "essential health",  # ALDI health brand
+            "voost effervescent", "voost hydrate", "murine eye drops", "eye drops",
+            "muscle nation",  # Sports nutrition brand
         ],
         "patterns": [
             r"vitamin\s+", r"supplement", r"pain\s+relief", r"\d+mg\s+tablet",
+            r"voost\s+(effervescent|hydrate)", r"murine\s+relief",
             r"electrolyte",  # Sports/health drinks
+            r"muscle\s+nation\s+(creatine|protein)",  # Sports nutrition
         ],
     },
     "cleaning-household": {
@@ -973,6 +990,29 @@ def extract_primary_product(name: str) -> str:
     return text.strip()
 
 
+def _keyword_matches(keyword: str, text: str) -> bool:
+    """
+    Check if keyword matches in text, using word boundaries for short words.
+
+    Short keywords (4 chars or less) use word boundary matching to prevent
+    false positives like "rump" matching "crumpet" or "veal" matching "reveal".
+
+    Args:
+        keyword: The keyword to search for
+        text: The text to search in (should be lowercase)
+
+    Returns:
+        True if keyword matches, False otherwise
+    """
+    if len(keyword) <= 4 and ' ' not in keyword:
+        # Use word boundary for short single-word keywords
+        pattern = rf'\b{re.escape(keyword)}\b'
+        return bool(re.search(pattern, text, re.IGNORECASE))
+    else:
+        # Longer keywords or multi-word phrases use substring match
+        return keyword in text
+
+
 def _calculate_match_score(text: str, rules: dict, category_slug: str) -> int:
     """
     Calculate a match score for a category based on keywords and patterns.
@@ -989,7 +1029,7 @@ def _calculate_match_score(text: str, rules: dict, category_slug: str) -> int:
 
     # Keywords get higher base score than patterns
     for keyword in rules.get("keywords", []):
-        if keyword in text:
+        if _keyword_matches(keyword, text):
             # Longer keyword matches are more specific
             score = max(score, 100 + len(keyword))
 

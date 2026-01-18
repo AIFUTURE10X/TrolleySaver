@@ -16,6 +16,7 @@ class Product(Base):
     barcode = Column(String(50), index=True)
     image_url = Column(String(500))
     is_key_product = Column(Boolean, default=False, index=True)
+    is_staple = Column(Boolean, default=False, index=True)  # Everyday staple product (produce, meat, etc.)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

@@ -36,8 +36,14 @@ class Settings(BaseSettings):
     # Admin API Key (for manual scrape triggers)
     admin_api_key: str | None = None
 
+    # SaleFinder settings
+    salefinder_enabled: bool = True
+    salefinder_default_postcode: str = "2000"  # Sydney
+    default_scrape_source: str = "salefinder"  # Options: salefinder, firecrawl, both
+
     class Config:
-        env_file = "C:/Projects/Supermarket Specials Compare/backend/.env"
+        env_file = ".env"
+        env_file_encoding = "utf-8"
         case_sensitive = False
 
 
