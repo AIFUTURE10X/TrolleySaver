@@ -31,7 +31,8 @@ import type {
   BasketCompareResponse,
 } from '../types';
 
-const API_BASE = '/api';
+// Use Railway backend URL in production, relative path in development
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 // Use v1 API for now (v2 has routing issues)
 const USE_V2_API = false;
