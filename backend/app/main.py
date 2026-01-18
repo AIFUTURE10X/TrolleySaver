@@ -8,6 +8,8 @@ from app.database import init_db
 from app.routers.specials import router as specials_router
 from app.routers.specials_v2 import router as specials_v2_router
 from app.routers.compare import router as compare_router
+from app.routers.admin import router as admin_router
+from app.routers.staples import router as staples_router  # Staples price comparison
 from app.tasks.scheduler import start_scheduler, stop_scheduler
 from app.services.cache import cache
 
@@ -57,6 +59,8 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.include_router(specials_router, prefix=settings.api_prefix)
 app.include_router(specials_v2_router, prefix=settings.api_prefix)
 app.include_router(compare_router, prefix=settings.api_prefix)
+app.include_router(admin_router, prefix=settings.api_prefix)
+app.include_router(staples_router, prefix=settings.api_prefix)
 
 
 @app.get("/")
@@ -87,5 +91,49 @@ def list_stores():
             }
             for s in stores
         ]
+    finally:
+        db.close()
+
+
+@app.post("/api/import-specials")
+def import_specials_direct(specials: list[dict]):
+    """Import specials directly into the database."""
+    from app.database import SessionLocal
+    from app.models import Store, Special
+    from datetime import datetime, timedelta
+
+    db = SessionLocal()
+    try:
+        # Get store mapping
+        stores = {s.slug: s.id for s in db.query(Store).all()}
+
+        created = 0
+        skipped = 0
+        for item in specials:
+            store_slug = item.get('store_slug')
+            if store_slug not in stores:
+                skipped += 1
+                continue
+
+            # Create special
+            special = Special(
+                store_id=stores[store_slug],
+                name=item.get('product_name'),
+                brand=item.get('brand'),
+                size=item.get('size'),
+                category=item.get('category'),
+                price=item.get('price'),
+                was_price=item.get('was_price'),
+                discount_percent=item.get('discount_percent'),
+                image_url=item.get('image_url'),
+                valid_from=datetime.now().date(),
+                valid_to=(datetime.now() + timedelta(days=7)).date(),
+                scraped_at=datetime.now()
+            )
+            db.add(special)
+            created += 1
+
+        db.commit()
+        return {"message": "Specials imported", "created": created, "skipped": skipped}
     finally:
         db.close()
