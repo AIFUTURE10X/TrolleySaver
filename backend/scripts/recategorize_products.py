@@ -18,6 +18,12 @@ from app.models import Special, Category
 from app.services.auto_categorizer import categorize_product
 
 
+def safe_print(text):
+    """Print text with ASCII-safe encoding for Windows console."""
+    safe_text = text.encode('ascii', 'replace').decode('ascii')
+    print(safe_text)
+
+
 def recategorize_all_products():
     """Re-categorize all specials using updated auto-categorizer rules."""
     print("Re-categorizing all products...")
@@ -59,14 +65,14 @@ def recategorize_all_products():
             if new_category_id != old_category_id:
                 if old_category_id is None and new_category_id is not None:
                     stats["newly_categorized"] += 1
-                    print(f"  NEW: '{special.name}' -> {category_names.get(new_category_slug, new_category_slug)}")
+                    safe_print(f"  NEW: '{special.name}' -> {category_names.get(new_category_slug, new_category_slug)}")
                 elif old_category_id is not None and new_category_id is not None:
                     stats["changed"] += 1
                     # Find old category name
                     old_cat = db.query(Category).filter(Category.id == old_category_id).first()
                     old_name = old_cat.name if old_cat else "Unknown"
                     new_name = category_names.get(new_category_slug, new_category_slug)
-                    print(f"  CHANGED: '{special.name}' from '{old_name}' -> '{new_name}'")
+                    safe_print(f"  CHANGED: '{special.name}' from '{old_name}' -> '{new_name}'")
 
                     # Track changes by category
                     change_key = f"{old_name} -> {new_name}"
@@ -134,7 +140,7 @@ def preview_changes(limit=100):
             if new_category_id != special.category_id:
                 old_name = id_to_name.get(special.category_id, "None")
                 new_name = category_names.get(new_category_slug, "None")
-                print(f"  '{special.name}': {old_name} -> {new_name}")
+                safe_print(f"  '{special.name}': {old_name} -> {new_name}")
                 changes_found += 1
 
         print(f"\n{changes_found} changes would be made (showing first {limit})")
