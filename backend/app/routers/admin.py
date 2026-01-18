@@ -473,3 +473,171 @@ def unified_scrape(
         "store": store or "all",
         "results": results
     }
+
+
+# ============== Everyday Prices Import ==============
+
+class EverydayPriceImport(BaseModel):
+    """Single everyday price item for import."""
+    name: str
+    store_slug: str
+    price: float
+    brand: Optional[str] = None
+    size: Optional[str] = None
+    barcode: Optional[str] = None
+    image_url: Optional[str] = None
+    category_id: Optional[int] = None
+    unit_price: Optional[str] = None
+    is_special: bool = False
+
+
+@router.post("/import-everyday-prices")
+def import_everyday_prices(prices: list[EverydayPriceImport]):
+    """
+    Import everyday prices into Product/StoreProduct/Price tables.
+    These are used by the staples page for price comparison.
+    """
+    from app.models import Store, Product, StoreProduct, Price
+    from datetime import datetime
+
+    db = SessionLocal()
+    try:
+        # Get store mapping
+        stores = {s.slug: s.id for s in db.query(Store).all()}
+
+        created_products = 0
+        created_prices = 0
+        skipped = 0
+
+        # Track products by name to avoid duplicates
+        product_cache = {}
+
+        for item in prices:
+            if item.store_slug not in stores:
+                skipped += 1
+                continue
+
+            store_id = stores[item.store_slug]
+            product_name = item.name[:255] if item.name else ""
+
+            # Get or create product
+            if product_name.lower() not in product_cache:
+                existing_product = db.query(Product).filter(
+                    Product.name == product_name
+                ).first()
+
+                if existing_product:
+                    product = existing_product
+                else:
+                    product = Product(
+                        name=product_name,
+                        brand=item.brand,
+                        size=item.size,
+                        barcode=item.barcode,
+                        image_url=item.image_url,
+                        category_id=item.category_id or 1  # Default to Fruit & Veg
+                    )
+                    db.add(product)
+                    db.flush()  # Get the ID
+                    created_products += 1
+
+                product_cache[product_name.lower()] = product
+            else:
+                product = product_cache[product_name.lower()]
+
+            # Get or create store product
+            store_product = db.query(StoreProduct).filter(
+                StoreProduct.product_id == product.id,
+                StoreProduct.store_id == store_id
+            ).first()
+
+            if not store_product:
+                store_product = StoreProduct(
+                    product_id=product.id,
+                    store_id=store_id,
+                    image_url=item.image_url
+                )
+                db.add(store_product)
+                db.flush()
+
+            # Create or update price
+            existing_price = db.query(Price).filter(
+                Price.store_product_id == store_product.id
+            ).first()
+
+            if existing_price:
+                existing_price.price = item.price
+                existing_price.unit_price = item.unit_price
+                existing_price.is_special = item.is_special
+                existing_price.updated_at = datetime.now()
+            else:
+                price = Price(
+                    store_product_id=store_product.id,
+                    price=item.price,
+                    unit_price=item.unit_price,
+                    is_special=item.is_special
+                )
+                db.add(price)
+                created_prices += 1
+
+        db.commit()
+        return {
+            "message": "Everyday prices imported",
+            "created_products": created_products,
+            "created_prices": created_prices,
+            "skipped": skipped
+        }
+    finally:
+        db.close()
+
+
+@router.delete("/clear-everyday-prices")
+def clear_everyday_prices():
+    """Clear all everyday prices (Product/StoreProduct/Price tables)."""
+    from app.models import Product, StoreProduct, Price
+
+    db = SessionLocal()
+    try:
+        prices_count = db.query(Price).count()
+        store_products_count = db.query(StoreProduct).count()
+        products_count = db.query(Product).count()
+
+        db.query(Price).delete()
+        db.query(StoreProduct).delete()
+        db.query(Product).delete()
+        db.commit()
+
+        return {
+            "message": "Everyday prices cleared",
+            "deleted": {
+                "prices": prices_count,
+                "store_products": store_products_count,
+                "products": products_count
+            }
+        }
+    finally:
+        db.close()
+
+
+@router.get("/debug/everyday-prices")
+def debug_everyday_prices():
+    """Debug endpoint to check everyday prices data."""
+    from app.models import Product, StoreProduct, Price
+
+    db = SessionLocal()
+    try:
+        products_count = db.query(Product).count()
+        store_products_count = db.query(StoreProduct).count()
+        prices_count = db.query(Price).count()
+
+        # Sample products
+        samples = db.query(Product.name, Product.category_id).limit(5).all()
+
+        return {
+            "products": products_count,
+            "store_products": store_products_count,
+            "prices": prices_count,
+            "samples": [{"name": s[0][:50], "category_id": s[1]} for s in samples]
+        }
+    finally:
+        db.close()
